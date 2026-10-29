@@ -4,9 +4,9 @@
   "institution": "Techno India University, Kolkata, India",
   "repo": "https://github.com/AkashKundu114/nullconsensus",
   "local_path": "D:/nullconsensus",
-  "updated_at": "2026-10-28T19:17:00+05:30",
-  "current_phase": "PHASE_B3_PREREGISTRATION_COMPLETE",
-  "preregistration_tag": "prereg-v1",
+  "updated_at": "2026-10-29T11:08:00+05:30",
+  "current_phase": "PHASE_B3_PREREG_V2_FROZEN",
+  "preregistration_tag": "prereg-v2",
   "primary_method": "Candidate 12 (NullGate: Unimodal/Permutation Null Calibrated Saliency)",
   "count_aware_module": "Candidate 2 (HurdleGate: Positive-Support Bimodality & Dropout Entropy)",
   "environment": {
@@ -35,8 +35,8 @@
     "B7_paper2_release": "BLOCKED_BY_TEST_RUNS"
   },
   "unit_tests": {
-    "total": 10,
-    "passing": 10,
+    "total": 13,
+    "passing": 13,
     "pass_rate_pct": 100.0
   }
 }

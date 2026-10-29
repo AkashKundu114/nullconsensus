@@ -2,6 +2,8 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.14-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Tests: Passing](https://img.shields.io/badge/pytest-13%2F13%20passed-brightgreen.svg)]()
+[![Pre-Registration: prereg-v2](https://img.shields.io/badge/preregistration-prereg--v2%20(frozen)-success.svg)](PREREGISTRATION.md)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
 **Permutation-Null Calibrated Consensus Clustering for High-Dimensional Manifolds.**
@@ -48,6 +50,24 @@ labels = model.fit_predict(X)
 X_query = rng.standard_normal((5, 500))
 X_query[:, :15] += 3.0
 print("Cluster assignments:", model.predict(X_query).tolist())
+```
+
+---
+
+## Pre-Registration & Research Protocol
+
+This project strictly adheres to a frozen pre-registration protocol:
+- **Pre-Registration Document:** [`PREREGISTRATION.md`](PREREGISTRATION.md) (frozen at tag `prereg-v2`).
+- **Prior-Art & Novelty Audit:** [`docs/NOVELTY.md`](docs/NOVELTY.md) (structural contrast vs M3C, dropout/hurdle methods, and co-association baselines).
+- **Sealed Test Set Manifest:** [`data/test_manifest.json`](data/test_manifest.json) containing 27 benchmark cohorts with verified licenses and checksums.
+- **Access Guard:** Enforced via `nullconsensus.data.guard.verify_test_access_allowed`, preventing test data download or access prior to freeze-v1 tag.
+
+---
+
+## Testing
+
+```bash
+python -m pytest tests/ -v
 ```
 
 ---

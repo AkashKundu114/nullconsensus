@@ -44,3 +44,8 @@ Issues = "https://github.com/AkashKundu114/nullconsensus/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
