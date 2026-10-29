@@ -5,6 +5,7 @@
 [![Tests: Passing](https://img.shields.io/badge/pytest-13%2F13%20passed-brightgreen.svg)]()
 [![Pre-Registration: prereg-v2](https://img.shields.io/badge/preregistration-prereg--v2%20(frozen)-success.svg)](PREREGISTRATION.md)
 [![Code Style: Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![XERJ Corpus Hub contributor](https://hub.xerj.org/contributors/AkashKundu114/badge.svg)](https://hub.xerj.org/contributors/AkashKundu114)
 
 **Permutation-Null Calibrated Consensus Clustering for High-Dimensional Manifolds.**
 
