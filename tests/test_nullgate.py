@@ -3,9 +3,10 @@ Unit tests for NullConsensus estimator and NullGateFeatureSelector.
 """
 
 import numpy as np
-import pytest
+
 from nullconsensus import NullConsensus
 from nullconsensus.data.synthetic import make_gaussian_distractor
+
 
 def test_nullconsensus_fit_predict_shape():
     X, y = make_gaussian_distractor(n_samples=60, n_features=100, n_informative=10, n_clusters=3, random_state=42)

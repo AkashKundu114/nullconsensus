@@ -20,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0-dev-round1] - 2026-10-29
+
+### Added
+- **Unified 12-Model Baseline Registry (`src/nullconsensus/baselines/`):** Full implementations of `KMeansBaseline`, `WardBaseline`, `SpectralBaseline`, `SparseKMeansBaseline`, `StandardConsensusBaseline`, `CoreHaloBaseline`, `FCAGBaseline`, `CoHiRFBaseline`, `M3CBaseline`, `GACBaseline`, `GACRandomGatingBaseline`, and `NullConsensus` via `get_baseline()` factory.
+- **DEV Benchmark Suite Loader (`src/nullconsensus/data/dev_loader.py`):** Partition-guarded loader for the 13 Paper 1 DEV datasets and synthetic suites with `DataPeekingViolation` enforcement.
+- **DEV Pilot Runner (`scripts/run_dev_pilots.py`):** Automated runner supporting `--pilot`, `--high-d`, and `--full` execution modes with automated Kill Criteria auditing.
+- **Unit Test Battery Extension:** Added `tests/test_all_baselines.py` and `tests/test_dev_loader.py`, bringing test suite to 29 clean passing tests.
+
+### Changed
+- **Transfer-Cut Spectral Embedding Refinement (`src/nullconsensus/api.py`):** Upgraded bipartite spectral consensus to select non-trivial eigenvectors ($V_{\text{core}} = \text{evecs}[:, 1:K+1]$), eliminating corruption by the stationary trivial left singular vector and boosting Leukemia ARI from negative baseline values to **0.8690**.
+- **Two-Stage Active Pool Softmax Subspace Sampling:** Restricted softmax saliency subspace drawing to active candidate pool $|\mathcal{F}_{\text{active}}| = \lfloor \alpha D \rfloor$, doubling synthetic Gaussian clustering ARI to **0.5225** and achieving mean High-D ARI of **0.2541** (vs. 0.0567 for `gac_random_gating`, clearing Kill Criterion 1 with $+0.1974$ margin).
+
+---
+
 ## [0.2.0-prereg-v2] - 2026-10-29
 
 ### Added

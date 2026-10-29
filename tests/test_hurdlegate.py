@@ -3,9 +3,9 @@ Unit tests for HurdleGateFeatureSelector (Candidate 2).
 """
 
 import numpy as np
-import pytest
-from nullconsensus.methods.hurdlegate import HurdleGateFeatureSelector
+
 from nullconsensus.data.synthetic import make_zero_inflated_counts
+from nullconsensus.methods.hurdlegate import HurdleGateFeatureSelector
 
 
 def test_hurdlegate_identifies_informative_features():

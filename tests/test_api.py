@@ -4,8 +4,9 @@ Unit tests for NullConsensus API and parameters.
 
 import numpy as np
 import pytest
-from nullconsensus import NullConsensus, NullGateFeatureSelector, HurdleGateFeatureSelector
-from nullconsensus.data.synthetic import make_gaussian_distractor, make_zero_inflated_counts
+
+from nullconsensus import HurdleGateFeatureSelector, NullConsensus, NullGateFeatureSelector
+from nullconsensus.data.synthetic import make_gaussian_distractor
 
 
 def test_nullconsensus_estimator_modes():

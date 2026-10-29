@@ -1,0 +1,54 @@
+{
+  "timestamp": "2026-10-29T13:55:44",
+  "total_fits": 360,
+  "datasets": [
+    "leukemia",
+    "colon",
+    "cns",
+    "srbct",
+    "prostate",
+    "ovarian"
+  ],
+  "methods": [
+    "kmeans",
+    "ward",
+    "spectral",
+    "sparse_kmeans",
+    "std_consensus",
+    "core_halo",
+    "fcag",
+    "cohirf",
+    "m3c",
+    "icc_v2",
+    "gac_random_gating",
+    "nullconsensus"
+  ],
+  "overall_mean_ari": {
+    "cohirf": 0.025180498658742112,
+    "core_halo": 0.03155445393749077,
+    "fcag": 0.0479241804598207,
+    "gac_random_gating": 0.05673273776627576,
+    "icc_v2": 0.22048791799136178,
+    "kmeans": 0.05689253999155227,
+    "m3c": 0.042700414084416466,
+    "nullconsensus": 0.25414335806528493,
+    "sparse_kmeans": 0.046424678524828164,
+    "spectral": 0.034588102164781365,
+    "std_consensus": 0.038317915877477564,
+    "ward": 0.03164693477565723
+  },
+  "overall_mean_runtime": {
+    "cohirf": 0.18436666666666665,
+    "core_halo": 0.8153866666666667,
+    "fcag": 0.7836766666666667,
+    "gac_random_gating": 0.16595000000000001,
+    "icc_v2": 0.8934466666666666,
+    "kmeans": 0.26936,
+    "m3c": 6.815406666666666,
+    "nullconsensus": 0.9093233333333333,
+    "sparse_kmeans": 0.19635333333333332,
+    "spectral": 0.05618,
+    "std_consensus": 0.8315333333333332,
+    "ward": 0.06529
+  }
+}

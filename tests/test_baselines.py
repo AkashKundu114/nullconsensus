@@ -3,9 +3,9 @@ Unit tests for nullconsensus baselines (M3C and GACRandomGating).
 """
 
 import numpy as np
-import pytest
-from nullconsensus.baselines.m3c import M3CBaseline, compute_pac
+
 from nullconsensus.baselines.gac_random_gating import GACRandomGatingBaseline
+from nullconsensus.baselines.m3c import M3CBaseline, compute_pac
 
 
 def test_compute_pac_bounds():

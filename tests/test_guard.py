@@ -2,9 +2,10 @@
 Tests for Test Dataset Access Guard (data/guard.py).
 """
 
-import os
 import pytest
-from nullconsensus.data.guard import verify_test_access_allowed, DataPeekingViolation
+
+from nullconsensus.data.guard import DataPeekingViolation, verify_test_access_allowed
+
 
 def test_guard_blocks_without_freeze_tag(monkeypatch):
     monkeypatch.delenv("FREEZE_TAG", raising=False)

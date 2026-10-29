@@ -7,7 +7,7 @@ from typing import Literal
 
 import numpy as np
 from sklearn.base import BaseEstimator, ClusterMixin
-from sklearn.cluster import KMeans
+from sklearn.cluster import KMeans, SpectralClustering
 
 from nullconsensus.methods.hurdlegate import HurdleGateFeatureSelector
 from nullconsensus.methods.nullgate import NullGateFeatureSelector
@@ -55,6 +55,7 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         null_reference: Literal["gaussian", "uniform"] = "gaussian",
         n_null_draws: int = 200,
         n_null_permutations: int | None = None,
+        base_clusterer: Literal["auto", "kmeans", "spectral"] = "auto",
         random_state: int = 42,
     ):
         self.n_clusters = n_clusters
@@ -68,6 +69,7 @@ class NullConsensus(BaseEstimator, ClusterMixin):
             n_null_permutations if n_null_permutations is not None else n_null_draws
         )
         self.n_null_permutations = self.n_null_draws
+        self.base_clusterer = base_clusterer
         self.random_state = random_state
 
         # Fitted attributes
@@ -108,27 +110,64 @@ class NullConsensus(BaseEstimator, ClusterMixin):
 
         # Top active features pool
         assert self.feature_weights_ is not None
+        assert self.sampling_probs_ is not None
         n_pool = max(2, int(np.ceil(self.subspace_fraction * D)))
         self.active_features_ = np.argsort(-self.feature_weights_)[:n_pool]
+
+        # Normalized saliency-weighted probabilities over active candidate pool
+        pool_probs = self.sampling_probs_[self.active_features_]
+        prob_sum = float(np.sum(pool_probs))
+        if prob_sum > 0:
+            pool_probs = pool_probs / prob_sum
+        else:
+            pool_probs = np.ones(len(self.active_features_)) / len(self.active_features_)
 
         # 2. Select L Landmark Anchors
         L = min(self.n_anchors, N)
         anchor_idx = rng.choice(N, size=L, replace=False)
 
+        # Determine base clustering engine
+        if self.base_clusterer == "auto":
+            base_engine = "spectral" if N <= 100 else "kmeans"
+        else:
+            base_engine = self.base_clusterer
+
         # 3. Generate Base Ensemble Partitions with Saliency-Weighted Subspaces
-        n_sub = max(2, int(np.ceil(self.subspace_fraction * D)))
+        sub_size = max(
+            2, min(len(self.active_features_), int(np.ceil(0.30 * len(self.active_features_))))
+        )
         # Rectangular bipartite co-association matrix B: N x L
         B = np.zeros((N, L), dtype=float)
 
         for m in range(self.n_base_models):
             sub_seed = int(rng.integers(0, 1000000))
-            # Soft saliency-weighted subspace sampling
-            sub_feats = rng.choice(D, size=n_sub, replace=False, p=self.sampling_probs_)
+            # Soft saliency-weighted subspace sampling within active pool
+            sub_feats = rng.choice(
+                self.active_features_, size=sub_size, replace=False, p=pool_probs
+            )
             X_sub = X[:, sub_feats]
 
             # Base clustering
-            km = KMeans(n_clusters=self.n_clusters, n_init=1, random_state=sub_seed)
-            base_labels = km.fit_predict(X_sub)
+            if base_engine == "spectral":
+                try:
+                    sp = SpectralClustering(
+                        n_clusters=self.n_clusters,
+                        affinity="nearest_neighbors",
+                        n_neighbors=min(10, max(2, N - 1)),
+                        random_state=sub_seed,
+                        assign_labels="kmeans",
+                    )
+                    base_labels = sp.fit_predict(X_sub)
+                except Exception:
+                    km = KMeans(
+                        n_clusters=self.n_clusters, n_init=3, random_state=sub_seed
+                    )
+                    base_labels = km.fit_predict(X_sub)
+            else:
+                km = KMeans(
+                    n_clusters=self.n_clusters, n_init=3, random_state=sub_seed
+                )
+                base_labels = km.fit_predict(X_sub)
 
             # Co-association with landmark anchors: match indicator
             anchor_labels = base_labels[anchor_idx]
@@ -138,24 +177,28 @@ class NullConsensus(BaseEstimator, ClusterMixin):
             B += match_matrix / self.n_base_models
 
         # 4. Bipartite Transfer-Cut Spectral Embedding
-        dx = np.sum(B, axis=1)  # (N,)
-        dy = np.sum(B, axis=0)  # (L,)
-        dx[dx < 1e-12] = 1e-12
-        dy[dy < 1e-12] = 1e-12
-
-        Dx_inv_sqrt = np.diag(1.0 / np.sqrt(dx))
-        Dy_inv_sqrt = np.diag(1.0 / np.sqrt(dy))
-
-        # S = Dx^(-1/2) * B * Dy^(-1/2)
-        S = Dx_inv_sqrt @ B @ Dy_inv_sqrt
-
         try:
-            U, s, Vt = np.linalg.svd(S, full_matrices=False)
-            k_eff = min(self.n_clusters, U.shape[1])
-            embeddings = U[:, :k_eff]
-            norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+            row_sums = B.sum(axis=1, keepdims=True)
+            row_sums[row_sums < 1e-12] = 1.0
+            B_norm = B / row_sums
+
+            W_anchor = B_norm.T @ B_norm
+            deg = W_anchor.sum(axis=1)
+            deg_inv_sqrt = 1.0 / np.sqrt(np.fmax(deg, 1e-12))
+            L_norm = np.eye(L) - (deg_inv_sqrt[:, None] * W_anchor * deg_inv_sqrt[None, :])
+
+            evals, evecs = np.linalg.eigh(L_norm)
+            if L > self.n_clusters:
+                V_core = evecs[:, 1 : self.n_clusters + 1]
+                sig = np.fmax(1.0 - evals[1 : self.n_clusters + 1], 1e-9)
+            else:
+                V_core = evecs[:, : self.n_clusters]
+                sig = np.fmax(1.0 - evals[: self.n_clusters], 1e-9)
+
+            U_emb = B_norm @ (deg_inv_sqrt[:, None] * V_core) / np.sqrt(sig)
+            norms = np.linalg.norm(U_emb, axis=1, keepdims=True)
             norms[norms < 1e-12] = 1e-12
-            embeddings = embeddings / norms
+            embeddings = U_emb / norms
         except Exception:
             embeddings = B[:, : min(self.n_clusters, L)]
 
