@@ -1,151 +1,96 @@
-# Prior Art Analysis and Novelty Audit (NOVELTY.md)
+# Prior Art Analysis and Adversarial Novelty Audit (NOVELTY.md)
 
-This document records an adversarial novelty audit evaluating 12 candidate algorithmic concepts for Paper 2 against prior art across cluster ensembles, unsupervised feature selection, null models, and anchor graphs.
-
----
-
-## 1. Candidate Concepts & Adversarial Prior Art Evaluation
-
-### Candidate 1: Projected Bimodality Pursuit (PBP)
-- **Core Mechanism:** Random 2D/3D projection pursuit followed by 1D marginal Hartigan Dip Test / Sarle BC on projected coordinates to detect non-linear XOR interactions.
-- **Closest Prior Art:**
-  1. *Projection Pursuit* (Friedman & Tukey, 1974; Huber, 1985)
-  2. *Kurtosis and Bimodality Projection Pursuit for Clustering* (Peña & Prieto, 2001, JASA)
-  3. *Dip-dist: A dip-test based distance for clustering* (Maurus & Plant, 2016, KDD)
-  4. *Random Projections for High-Dimensional Data Clustering* (Fern & Brodley, 2003)
-  5. *CoHiRF* (Belucci et al., 2025, arXiv:2502.00380)
-- **Differentiation:** Most projection pursuit methods optimize non-linear pursuit indices iteratively ($O(D^2)$ or gradient descent). PBP uses fast random Gaussian projections with linear bimodality screening.
-- **Verdict:** **INCREMENTAL**. (Random projections with 1D clustering are heavily explored in Fern & Brodley 2003 and Peña & Prieto 2001).
+**Status:** REOPENED FOR PREREG-V2 AUDIT  
+**Lead Investigator:** Akash Kundu (Techno India University)  
+**Date:** October 29, 2026  
+**Associated Tag:** `prereg-v2`
 
 ---
 
-### Candidate 2: Hurdle-Bimodality Gating (HBG)
-- **Core Mechanism:** Two-part hurdle screening for zero-inflated count data (scRNA-seq / text): separates zero point-mass from the continuous positive support $\mathbf{x}^+ = \{x_{id} \mid x_{id} > 0\}$; computes Sarle's $BC$ exclusively on $\mathbf{x}^+$ and combines with binomial dropout variance.
-- **Closest Prior Art:**
-  1. *MAST: Model-based Analysis of Single-cell Transcriptomics* (Finak et al., 2015, Genome Biology)
-  2. *Zero-Inflated Negative Binomial models for scRNA-seq* (Risso et al., 2018, Nature Communications)
-  3. *Hurdle models in high-dimensional genomic feature selection* (Cragg, 1971; Cameron & Trivedi, 2013)
-  4. *Feature selection for single-cell RNA-seq via dropouts* (Andrews & Hemberg, 2019)
-  5. *Seurat v4/v5 Highly Variable Feature (HVF) Selection* (Hao et al., 2021/2024, Cell)
-- **Differentiation:** Existing single-cell hurdle models (MAST, ZINB-WaVE) are parametric regression/GLM models requiring extensive optimization ($O(N \cdot D \cdot \text{iters})$). HBG is an exact, closed-form $O(N \cdot D)$ linear filter computing closed-form sample moments on positive support to eliminate false bimodality from dropout spikes.
-- **Verdict:** **NOVEL** (Application of closed-form hurdle moment decomposition as an unsupervised linear feature gate for cluster ensembles is new).
+## 1. Executive Summary & Audit Mandate
+
+Prior to launching any pilot or developmental experiments (Phase B4) for Track B (`NullConsensus`), this document reopens the prior art analysis to address key literature overlaps:
+1. **Anticipation of Null-Referenced Consensus Stability:** The publication of **M3C** (*Monte Carlo Reference-based Consensus Clustering*, John et al., *Scientific Reports* 10:1816, 2020) explicitly introduced the concept of calibrating consensus clustering stability (PAC) against simulated null distributions to remove false cluster detection and estimate $K$.
+2. **Reclassification of Hypothesis H3:** Because M3C anticipates the conceptual foundation of null-calibrated stability evaluation in consensus clustering, Hypothesis H3 cannot be claimed as a de novo primary contribution. H3 is formally reclassified as an **EXPLORATORY ADAPTATION** of the M3C principle to non-parametric column permutations and scalable bipartite anchor graphs.
+3. **Multi-Component Prior Art Mapping:** The three foundational components of `NullConsensus`—(1) Null-Referenced Stability / PAC, (2) Hurdle / Dropout-Aware Gating, and (3) Permutation-Null Feature Screening—are benchmarked against their five closest prior art systems.
 
 ---
 
-### Candidate 3: Permutation-Calibrated Null Stability Consensus (PCNSC)
-- **Core Mechanism:** Evaluates cluster stability against an empirical column-permuted reference null dataset $\mathbf{X}_{\text{null}}$ where feature-to-feature dependencies are destroyed while 1D marginals are preserved. Uses difference $\Delta\text{PAC} = \text{PAC}(\mathbf{X}_{\text{null}}) - \text{PAC}(\mathbf{X})$ to detect true clustering and select $K$.
-- **Closest Prior Art:**
-  1. *Consensus Clustering* (Monti et al., 2003, Machine Learning)
-  2. *M3C: Monte Carlo Reference-based Consensus Clustering* (John et al., 2020, Scientific Reports)
-  3. *Gap Statistic* (Tibshirani, Walther, Hastie, 2001, JRSS-B)
-  4. *Clustering Stability and Model Selection* (von Luxburg, 2010)
-  5. *Prediction Strength for Estimating the Number of Clusters* (Tibshirani & Walther, 2005)
-- **Differentiation:** Monti's classical PAC lacks a null reference. M3C uses Gaussian simulations (which fail on skewed/multimodal margins). PCNSC uses non-parametric column permutations to strictly preserve empirical feature margins, combined with bipartite anchor consensus.
-- **Verdict:** **INCREMENTAL-WITH-CLEAR-DIFFERENTIATION** (M3C does Monte Carlo Gaussian nulls; column-permutation with bipartite anchor graphs is an empirical extension).
+## 2. In-Depth Prior Art Audit: M3C (John et al., 2020)
+
+### 2.1 M3C Mechanism Summary
+M3C addresses the well-documented failure mode of classical consensus clustering (Monti et al., 2003; Senbabaoglu et al., 2014) where consensus heuristics (e.g., CDF area change $\Delta K$, PAC) falsely discover distinct clusters in completely unimodal, homogeneous data.
+
+M3C operates as follows:
+1. For each candidate number of clusters $K \in \{2, \dots, K_{\max}\}$, standard consensus clustering runs $M$ resamplings (100 iterations of PAM or K-Means on 80% subsamples) on real data $\mathbf{X} \in \mathbb{R}^{N \times D}$.
+2. The Proportion of Ambiguous Clustering ($\text{PAC}$) is computed from the empirical cumulative distribution function $F(c)$ of consensus matrix entries:
+   $$\text{PAC}(K) = F(u_2) - F(u_1), \quad \text{where } u_1 = 0.1, u_2 = 0.9.$$
+3. A parametric null distribution is generated by drawing $B$ synthetic null datasets $\mathbf{X}_{\text{null}}^{(b)} \in \mathbb{R}^{N \times D}$ from a Gaussian distribution matching the PCA spectrum or marginal variances of $\mathbf{X}$.
+4. Consensus clustering is repeated across all $B$ null datasets to obtain null stability scores $\text{PAC}_{\text{null}}(K, b)$.
+5. The Relative Cluster Stability Index ($\text{RCSI}$) is defined as:
+   $$\text{RCSI}(K) = \text{mean}_{b \in \{1,\dots,B\}}\left(\text{PAC}_{\text{null}}(K, b)\right) - \text{PAC}_{\text{real}}(K).$$
+   An empirical $p$-value is calculated by comparing $\text{RCSI}(K)$ against the simulated null distribution, selecting the optimal $K^*$ where $\text{RCSI}$ is maximized and $p < 0.05$.
+
+### 2.2 Exact Differences: M3C vs. NullConsensus
+
+| Dimension | M3C (John et al., 2020) | NullConsensus (Proposed Framework) | Technical Justification |
+| :--- | :--- | :--- | :--- |
+| **Reference Null Formulation** | **Parametric Gaussian** (spherical or PCA-filtered Gaussian simulation). | **Non-Parametric Column Permutation** ($\mathbf{X}_{\text{null}} = [\pi_d(\mathbf{x}_d)]_{d=1}^D$). | High-dimensional omics data exhibit heavy tails, skewness, and multi-modal marginals that violate Gaussianity. Column permutation exactly preserves the empirical 1D marginal distribution of every feature while destroying cross-feature correlations. |
+| **Computational Scaling** | **Quadratic: $O(B \cdot M \cdot N^2 \cdot K)$**. Evaluates dense $N \times N$ consensus matrices. Fails for $N > 1{,}500$. | **Linear: $O(N \cdot L \cdot K)$**. Evaluates rectangular $N \times L$ bipartite anchor graphs with $L \ll N$ landmarks. | Anchors preserve graph connectivity in $O(NL)$ space, making null stability tractable on large cohorts ($N \ge 10{,}000$). |
+| **Role in Pipeline** | **End-Stage Diagnostic Only.** M3C is solely a post-hoc test for model-order ($K$) selection. It does not select features or modify the base clustering space. | **Dual-Stage Integration.** Null calibration operates at: (1) **Front-end Feature Gating** via closed-form null $z$-score saliency; (2) **Base Learner Subspace Sampling** via softmax weights; and (3) **Stability Calibration** for $K$. | Feature selection and subspace construction directly prevent the bimodal failure trap during base learner training, rather than diagnosing failure after the fact. |
+| **Count Data / Zero Inflation** | **None.** Assumes continuous Gaussian support. Fails under single-cell dropout spikes ($>70\%$ zeros). | **Two-Part Hurdle Gate (HurdleGate).** Isolates zero point-mass from continuous positive support $\mathbf{x}^+$. | Prevents dropout point-masses from artificially inflating bimodality and skewing null simulations in single-cell transcriptomics. |
+| **Ensemble Diversity** | Uniform subsampling of samples; all $D$ features utilized in ambient space. | **Saliency-Weighted Soft Subspaces** ($p_d \propto \exp(z_d / \tau)$). Eliminates uniform random subspace collapse. | Guaranteed representation of signal features in every base learner, eliminating the 22/30 bimodal failure modes observed in uniform random subspace methods. |
 
 ---
 
-### Candidate 4: Saliency-Weighted Subspace Sampling (SWSS)
-- **Core Mechanism:** Soft probabilistic subspace generation where feature selection probabilities are parameterized by null-calibrated saliency weights: $p_d \propto \exp(w_d / \tau)$, ensuring informative features are represented in every base learner while retaining ensemble diversity.
-- **Closest Prior Art:**
-  1. *Random Subspace Method* (Ho, 1998, IEEE TPAMI)
-  2. *Weighted Random Subspace for Clustering High-Dimensional Data* (Domeniconi et al., 2007)
-  3. *CoHiRF* (Belucci, Lounici, Meziani, 2025, arXiv:2502.00380)
-  4. *Sparse Subspace Clustering* (Elhamifar & Vidal, 2013, IEEE TPAMI)
-  5. *Selective Cluster Ensembles* (Fern & Lin, 2008)
-- **Differentiation:** CoHiRF uses uniform drawing over random subsets. Domeniconi requires iterative EM weighting. SWSS uses closed-form null-calibrated $BC$ z-scores to parameterize a Multinomial subspace sampler in $O(N \cdot D)$ time, eliminating the 22/30 bimodal failure mode observed in Leukemia.
-- **Verdict:** **NOVEL** (Closed-form null-calibrated soft-subspace sampling for bipartite anchor ensembles).
+## 3. Literature Mapping: Five Closest Prior Art per Component
+
+### Component 1: Null-Referenced Cluster Stability & Model Order Selection
+1. **John et al. (2020)** — *M3C: Monte Carlo reference-based consensus clustering.* Sci Rep 10:1816. Introduces PAC reference null simulation and RCSI metric.
+2. **Monti et al. (2003)** — *Consensus Clustering: A Resampling-Based Method for Class Discovery.* Mach Learn 52:91–118. Foundational consensus matrix CDF analysis.
+3. **Senbabaoglu et al. (2014)** — *Critical limitations of consensus clustering in class discovery.* Sci Rep 4:6207. Identifies consensus failure on unimodal data; defines PAC.
+4. **Tibshirani, Walther, & Hastie (2001)** — *Estimating the number of clusters in a data set via the gap statistic.* J R Stat Soc B 63(2):411–423. Foundational reference null concept using uniform hypercubes.
+5. **von Luxburg (2010)** — *Clustering Stability: An Overview.* Found Trends Mach Learn 2(3):235–274. Theoretical framework bounding stability and non-identifiability.
+
+### Component 2: Hurdle and Dropout-Aware Feature Selection in Count Data
+1. **Finak et al. (2015)** — *MAST: a flexible statistical framework for assessing transcriptional changes and characterizing heterogeneity in single-cell RNA sequencing data.* Genome Biol 16:278. Establishes two-part generalized linear hurdle models for scRNA-seq.
+2. **Andrews & Hemberg (2019)** — *M3Drop: Feature selection for single-cell RNA-seq via dropouts.* Cell Syst 8(2):160–173. Uses non-linear relationship between mean expression and dropout rate for feature selection.
+3. **Risso et al. (2018)** — *ZINB-WaVE: A general and flexible approach for single-cell RNA-sequence analysis.* Nat Commun 9:284. Zero-inflated negative binomial factor analysis for dimension reduction.
+4. **Hao et al. (2021, 2024)** — *Integrated analysis of multimodal single-cell data.* Cell 184(13):3573–3587 (Seurat v4/v5). Variance-stabilizing transformation (SCTransform) modeling regularized negative binomial counts.
+5. **Townes et al. (2019)** — *Feature selection and dimension reduction for single-cell RNA-seq based on a multinomial model.* Genome Biol 20:295 (GLM-PCA). Demonstrates that normalization distorting zero-inflation degrades downstream clustering.
+
+### Component 3: Permutation-Null Feature Screening & High-D Subspaces
+1. **Belucci, Lounici, & Meziani (2025)** — *CoHiRF: Consensus Hierarchical Random Forests for High-Dimensional Clustering.* arXiv:2502.00380. Random subspace K-Means with Ward consensus for ultra-high dimensions ($D \gg N$).
+2. **Kursa & Rudnicki (2010)** — *Feature Selection with the Boruta Package.* J Stat Softw 36(11):1–13. Creates permuted "shadow features" to establish empirical null score thresholds.
+3. **Barber & Candès (2015)** — *Controlling the false discovery rate via knockoffs.* Ann Stat 43(5):2055–2085. Non-parametric knockoff construction for exact false discovery rate control.
+4. **Dudoit, Shaffer, & Boldrick (2003)** — *Multiple hypothesis testing in microarray experiments.* Stat Sci 18(1):71–103. Establishes permutation null methodologies for biological discovery.
+5. **Fern & Brodley (2003)** — *Random Projections for High-Dimensional Data Clustering.* ICML 2003. Investigates random subspace and projection stability in cluster ensembles.
 
 ---
 
-### Candidate 5: Stratified Landmark Graph with Adaptive Spectral Inflation (SLG-ASI)
-- **Core Mechanism:** Addresses large-$K$ degradation by stratifying landmark placement across local density peaks and applying power-iteration inflation to bipartite graph transfer probabilities.
-- **Closest Prior Art:**
-  1. *Fast Clustering with Anchor Guidance (FCAG)* (Nie et al., 2024, IEEE TPAMI)
-  2. *Bipartite Graph Spectral Clustering* (Li et al., 2015; Nie et al., 2017)
-  3. *Markov Cluster Algorithm (MCL)* (van Dongen, 2000)
-  4. *Ultra-scalable Spectral Clustering* (Huang et al., 2020)
-  5. *FastMVC* (Huang et al., 2023)
-- **Differentiation:** Mainly combines established k-means++ seeding with MCL-style inflation on rectangular co-association graphs.
-- **Verdict:** **ANTICIPATED** (Strong conceptual overlap with existing bipartite graph and anchor literature).
+## 4. Candidate Algorithmic Evaluation Summary
+
+| Candidate | Mechanism | Prior Art Status | Verdict for Track B |
+| :--- | :--- | :--- | :--- |
+| **Candidate 1: PBP** | 2D/3D random projection pursuit + dip test | Fern & Brodley (2003), Peña & Prieto (2001) | REJECTED (Incremental) |
+| **Candidate 2: HBG** | Hurdle-Bimodality Gating for zero-inflated counts | Finak (2015), Andrews (2019) | **ACCEPTED as Count Module** |
+| **Candidate 3: PCNSC** | Permutation null PAC consensus stability | Monti (2003), M3C (2020) | **RECLASSIFIED as Adaptation** |
+| **Candidate 4: SWSS** | Saliency-weighted soft subspace sampling | Ho (1998), Domeniconi (2007) | **ACCEPTED as Subspace Module** |
+| **Candidate 5: SLG-ASI** | Landmark graph with spectral inflation | Nie (2024), van Dongen (2000) | REJECTED (Anticipated) |
+| **Candidate 6: HG-ICA** | Hierarchical gating + divisive tree | Monti (2003), Tasoulis (2010) | REJECTED (Incremental) |
+| **Candidate 7: MITG** | Pairwise mutual information graph | Reshef (2011), Tuv (2009) | REJECTED ($O(D^2)$ Complexity Violations) |
+| **Candidate 8: CICP** | Conformal inductive prediction sets | Cherubin (2021), Paper 1 (`src/cicc/`) | REJECTED (Direct Paper 1 overlap) |
+| **Candidate 9: DSHAC** | Dual-stream hurdle anchor consensus | SC3 (2017), SIMLR (2017) | Merged into Candidate 12 |
+| **Candidate 10: PP-NGC**| 2D projections + permutation dip test | Peña & Prieto (2001), CoHiRF (2025) | REJECTED (Incremental) |
+| **Candidate 11: EDKC** | Energy distance / MMD consensus | Székely (2013), Nguyen (2007) | REJECTED ($O(N^2)$ Kernel Complexity) |
+| **Candidate 12: NullGate**| Unified Null-Calibrated Subspace Consensus | M3C (2020), CoHiRF (2025), Paper 1 | **ACCEPTED AS PRIMARY METHOD** |
 
 ---
 
-### Candidate 6: Hierarchical Gating and Iterative Co-Association (HG-ICA)
-- **Core Mechanism:** Top-down divisive clustering tree where feature gating is re-applied locally at each branch point.
-- **Closest Prior Art:**
-  1. *Hierarchical Consensus Clustering* (Monti et al., 2003)
-  2. *Divisive Hierarchical Clustering with Feature Selection* (Tasoulis et al., 2010)
-  3. *Tree-structured Subspace Clustering* (Wang et al., 2018)
-- **Differentiation:** Standard recursive bi-partitioning with local gating.
-- **Verdict:** **INCREMENTAL**.
+## 5. Formal Pre-Registration Reclassification Mandate
 
----
-
-### Candidate 7: Mutual Information Tree Gating (MITG)
-- **Core Mechanism:** Builds an unsupervised dependency graph across features using pairwise Mutual Information (MI) or maximal information coefficient (MIC) to group features into bivariate cliques before subspace sampling.
-- **Closest Prior Art:**
-  1. *Detecting Novel Associations in Large Datasets (MIC)* (Reshef et al., 2011, Science)
-  2. *Feature Tree Clustering* (Tuv et al., 2009, JMLR)
-  3. *Minimum Spanning Tree Feature Selection* (Alok et al., 2015)
-- **Differentiation:** Computing all $O(D^2)$ feature pairs on $D = 7{,}129$ (Leukemia) or $D = 12{,}600$ (Prostate) requires $> 25 \times 10^6$ pairwise MI calculations, violating the 16 GB RAM and fast scaling constraints.
-- **Verdict:** **INCREMENTAL** (And computationally prohibitive in ultra-high dimensions).
-
----
-
-### Candidate 8: Conformal Inductive Core Prediction (CICP)
-- **Core Mechanism:** Split-conformal non-conformity calibration over anchor-space representations, yielding distribution-free $(1-\alpha)$ prediction sets for out-of-sample points.
-- **Closest Prior Art:**
-  1. *Conformal Prediction for Clustering* (Cherubin et al., 2021)
-  2. *Conformalized Out-of-Distribution Detection* (Bates et al., 2023)
-  3. *Conformal Inductive Consensus Clustering (cicc in Paper 1)*
-- **Differentiation:** Already partially explored in Paper 1 (`src/cicc/`).
-- **Verdict:** **INCREMENTAL** (Direct continuation of Paper 1).
-
----
-
-### Candidate 9: Dual-Stream Hurdle Anchor Consensus (DSHAC)
-- **Core Mechanism:** Merges Hurdle-Bimodality Gating (HBG) on features with Bipartite Anchor Consensus, designed specifically for zero-inflated single-cell transcriptomics.
-- **Closest Prior Art:**
-  1. *SC3: Consensus Clustering of single-cell RNA-seq* (Kiselev et al., 2017, Nature Methods)
-  2. *SIMLR* (Wang et al., 2017, Nature Methods)
-  3. *Seurat / Scanpy Louvain/Leiden pipelines* (Wolf et al., 2018; Hao et al., 2024)
-- **Differentiation:** SC3 uses $O(N^2)$ distance matrices, which fail at $N > 10{,}000$. DSHAC operates in linear $O(N \cdot L)$ memory with hurdle-calibrated gating.
-- **Verdict:** **NOVEL** (Scalable linear $O(NL)$ hurdle-gated consensus for single-cell transcriptomics).
-
----
-
-### Candidate 10: Projection-Pursuit Null-Gated Consensus (PP-NGC)
-- **Core Mechanism:** Combines 2D random projections with Hartigan's Dip Test, filtered against permutation null distribution.
-- **Closest Prior Art:**
-  1. *Peña & Prieto* (2001, JASA)
-  2. *Fern & Brodley* (2003)
-  3. *Belucci et al. (CoHiRF)* (2025)
-- **Differentiation:** Adds permutation testing to 2D projections.
-- **Verdict:** **INCREMENTAL**.
-
----
-
-### Candidate 11: Energy-Distance Kernel Consensus (EDKC)
-- **Core Mechanism:** Non-parametric Energy Distance / MMD to circumvent distance concentration under heavy-tailed noise.
-- **Closest Prior Art:**
-  1. *Energy Distance* (Székely & Rizzo, 2013)
-  2. *Kernel Consensus Clustering* (Nguyen & Caruana, 2007)
-- **Differentiation:** Replaces distance metric inside consensus; expensive $O(N^2)$ kernel computations.
-- **Verdict:** **ANTICIPATED**.
-
----
-
-### Candidate 12: Permutation-Null Calibrated Subspace Consensus (PN-CSC / "NullGate")
-- **Core Mechanism:** A unified three-stage framework:
-  1. **Null-Calibrated Feature Saliency:** Tests each feature's empirical multimodality statistic against an analytical/permutation null benchmark to assign continuous saliency scores $z_d$, filtering noise features with rigorous Type-I error control.
-  2. **Saliency-Weighted Soft Subspace Sampling:** Draws base subspaces according to $p_d \propto \exp(z_d / \tau)$, ensuring signal features are consistently co-sampled and completely eliminating the bimodal seed collapse observed in uniform random subspaces.
-  3. **Null-Referenced Consensus Stability for $K$ Selection:** Measures cluster consensus stability relative to a column-permuted reference null dataset to automatically identify the true number of clusters $K^* = \arg\max_K (\text{Stability}(K) - \text{Stability}_{\text{null}}(K))$, solving the stability-accuracy trap and removing the oracle known-$K$ assumption.
-- **Closest Prior Art:**
-  1. *Consensus Clustering* (Monti et al., 2003)
-  2. *M3C* (John et al., 2020, Scientific Reports)
-  3. *CoHiRF* (Belucci et al., 2025)
-  4. *Invariant Core Consensus (ICC-v2)* (Paper 1)
-  5. *Gap Statistic* (Tibshirani et al., 2001)
-- **Differentiation:** Uniquely addresses the four interconnected failure modes identified in Paper 1: (i) eliminates the stability-accuracy trap via null-model calibration; (ii) eliminates the seed bimodality trap via saliency-weighted sampling; (iii) eliminates the known-$K$ requirement via null-referenced stability; and (iv) retains linear $O(N \cdot L)$ computational scaling via bipartite anchor graphs.
-- **Verdict:** **NOVEL** (Principled integration of non-parametric permutation null references into both subspace generation and model-order selection for bipartite anchor cluster ensembles).
+1. **H1 (Primary Contrast):** Must evaluate `NullConsensus` against `icc_v2` (GAC pipeline) and `cohirf`, paired across 15 oncology cohorts. Add baseline `gac_random_gating` to isolate the specific effect of null-calibrated feature saliency from the ensemble architecture.
+2. **H2 (Count Recovery via HurdleGate):** Formally designated as **EXPLORATORY**.
+3. **H3 (Null-Referenced Stability):** Formally designated as an **EXPLORATORY ADAPTATION** of M3C (John et al., 2020) to column-permutation nulls and bipartite anchor graphs.
+4. **H4 (Subspace Variance Reduction):** Confirmatory evaluation of variance reduction with explicit variance ratio metric and bootstrap CI.
+5. **M3C Baseline Requirement:** A faithful Python reimplementation of M3C (`src/nullconsensus/baselines/m3c.py`) must be included in the evaluated benchmark suite.

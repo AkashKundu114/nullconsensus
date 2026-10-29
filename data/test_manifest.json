@@ -15,10 +15,15 @@
       "n_features": 2194,
       "n_clusters": 3,
       "d_over_n": 30.47,
-      "class_balance": [24, 20, 28],
+      "class_balance": [
+        24,
+        20,
+        28
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "High-D cancer benchmark for MLL gene rearrangement subtype separation"
+      "inclusion_reason": "High-D cancer benchmark for MLL gene rearrangement subtype separation",
+      "size": "72 x 2194 (157,968 matrix elements, ~1.21 MB)"
     },
     {
       "id": "bhattacharjee2001",
@@ -31,10 +36,17 @@
       "n_features": 3312,
       "n_clusters": 5,
       "d_over_n": 16.32,
-      "class_balance": [139, 21, 20, 17, 6],
+      "class_balance": [
+        139,
+        21,
+        20,
+        17,
+        6
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Multi-class lung adenocarcinoma subtyping"
+      "inclusion_reason": "Multi-class lung adenocarcinoma subtyping",
+      "size": "203 x 3312 (672,336 matrix elements, ~5.13 MB)"
     },
     {
       "id": "chowdary2006",
@@ -47,10 +59,14 @@
       "n_features": 182,
       "n_clusters": 2,
       "d_over_n": 1.75,
-      "class_balance": [62, 42],
+      "class_balance": [
+        62,
+        42
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Moderate D/N breast vs colon tumor diagnostic distinction"
+      "inclusion_reason": "Moderate D/N breast vs colon tumor diagnostic distinction",
+      "size": "104 x 182 (18,928 matrix elements, ~147.9 KB)"
     },
     {
       "id": "dyrskjot2003",
@@ -63,10 +79,15 @@
       "n_features": 1203,
       "n_clusters": 3,
       "d_over_n": 30.08,
-      "class_balance": [9, 20, 11],
+      "class_balance": [
+        9,
+        20,
+        11
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Small-N high-D bladder tumor grade differentiation"
+      "inclusion_reason": "Small-N high-D bladder tumor grade differentiation",
+      "size": "40 x 1203 (48,120 matrix elements, ~375.9 KB)"
     },
     {
       "id": "gordon2002",
@@ -79,10 +100,14 @@
       "n_features": 1626,
       "n_clusters": 2,
       "d_over_n": 8.98,
-      "class_balance": [150, 31],
+      "class_balance": [
+        150,
+        31
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Malignant pleural mesothelioma vs lung adenocarcinoma"
+      "inclusion_reason": "Malignant pleural mesothelioma vs lung adenocarcinoma",
+      "size": "181 x 1626 (294,306 matrix elements, ~2.25 MB)"
     },
     {
       "id": "pomeroy2002",
@@ -94,11 +119,18 @@
       "n_samples": 90,
       "n_features": 7128,
       "n_clusters": 5,
-      "d_over_n": 79.20,
-      "class_balance": [60, 10, 10, 6, 4],
+      "d_over_n": 79.2,
+      "class_balance": [
+        60,
+        10,
+        10,
+        6,
+        4
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Ultra-high D/N CNS embryonal tumor classification"
+      "inclusion_reason": "Ultra-high D/N CNS embryonal tumor classification",
+      "size": "90 x 7128 (641,520 matrix elements, ~4.89 MB)"
     },
     {
       "id": "ramaswamy2001",
@@ -111,10 +143,26 @@
       "n_features": 16063,
       "n_clusters": 14,
       "d_over_n": 81.13,
-      "class_balance": [11, 10, 11, 11, 10, 11, 11, 11, 20, 20, 20, 20, 20, 12],
+      "class_balance": [
+        11,
+        10,
+        11,
+        11,
+        10,
+        11,
+        11,
+        11,
+        20,
+        20,
+        20,
+        20,
+        20,
+        12
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Large-K (K=14) ultra-high-dimensional cancer benchmark"
+      "inclusion_reason": "Large-K (K=14) ultra-high-dimensional cancer benchmark",
+      "size": "198 x 16063 (3,180,474 matrix elements, ~24.27 MB)"
     },
     {
       "id": "shipp2002",
@@ -127,10 +175,14 @@
       "n_features": 7129,
       "n_clusters": 2,
       "d_over_n": 92.58,
-      "class_balance": [58, 19],
+      "class_balance": [
+        58,
+        19
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Diffuse large B-cell lymphoma vs follicular lymphoma"
+      "inclusion_reason": "Diffuse large B-cell lymphoma vs follicular lymphoma",
+      "size": "77 x 7129 (548,933 matrix elements, ~4.19 MB)"
     },
     {
       "id": "singh2002",
@@ -143,10 +195,14 @@
       "n_features": 12600,
       "n_clusters": 2,
       "d_over_n": 123.53,
-      "class_balance": [52, 50],
+      "class_balance": [
+        52,
+        50
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Extreme D/N prostate tumor vs non-tumor differentiation"
+      "inclusion_reason": "Extreme D/N prostate tumor vs non-tumor differentiation",
+      "size": "102 x 12600 (1,285,200 matrix elements, ~9.81 MB)"
     },
     {
       "id": "su2001",
@@ -159,10 +215,22 @@
       "n_features": 12533,
       "n_clusters": 10,
       "d_over_n": 72.03,
-      "class_balance": [26, 8, 27, 26, 30, 23, 8, 11, 7, 8],
+      "class_balance": [
+        26,
+        8,
+        27,
+        26,
+        30,
+        23,
+        8,
+        11,
+        7,
+        8
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Multi-tissue human carcinoma profiling"
+      "inclusion_reason": "Multi-tissue human carcinoma profiling",
+      "size": "174 x 12533 (2,180,742 matrix elements, ~16.64 MB)"
     },
     {
       "id": "west2001",
@@ -175,10 +243,14 @@
       "n_features": 7129,
       "n_clusters": 2,
       "d_over_n": 145.49,
-      "class_balance": [25, 24],
+      "class_balance": [
+        25,
+        24
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Ultra-small N (N=49) breast cancer ER status cohort"
+      "inclusion_reason": "Ultra-small N (N=49) breast cancer ER status cohort",
+      "size": "49 x 7129 (349,321 matrix elements, ~2.67 MB)"
     },
     {
       "id": "yeoh2002",
@@ -191,10 +263,18 @@
       "n_features": 12625,
       "n_clusters": 6,
       "d_over_n": 50.91,
-      "class_balance": [79, 43, 27, 64, 20, 15],
+      "class_balance": [
+        79,
+        43,
+        27,
+        64,
+        20,
+        15
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Six-subtype acute lymphoblastic leukemia classification"
+      "inclusion_reason": "Six-subtype acute lymphoblastic leukemia classification",
+      "size": "248 x 12625 (3,131,000 matrix elements, ~23.89 MB)"
     },
     {
       "id": "alizadeh2000",
@@ -207,10 +287,14 @@
       "n_features": 4026,
       "n_clusters": 2,
       "d_over_n": 95.86,
-      "class_balance": [21, 21],
+      "class_balance": [
+        21,
+        21
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "B-cell lymphoma molecular classification"
+      "inclusion_reason": "B-cell lymphoma molecular classification",
+      "size": "42 x 4026 (169,092 matrix elements, ~1.29 MB)"
     },
     {
       "id": "nutt2003",
@@ -222,11 +306,17 @@
       "n_samples": 50,
       "n_features": 12625,
       "n_clusters": 4,
-      "d_over_n": 252.50,
-      "class_balance": [14, 14, 7, 15],
+      "d_over_n": 252.5,
+      "class_balance": [
+        14,
+        14,
+        7,
+        15
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Extreme D/N (252.5) high-grade glioma histology differentiation"
+      "inclusion_reason": "Extreme D/N (252.5) high-grade glioma histology differentiation",
+      "size": "50 x 12625 (631,250 matrix elements, ~4.82 MB)"
     },
     {
       "id": "lapointe2004",
@@ -239,10 +329,15 @@
       "n_features": 5244,
       "n_clusters": 3,
       "d_over_n": 46.82,
-      "class_balance": [41, 62, 9],
+      "class_balance": [
+        41,
+        62,
+        9
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Prostate cancer progression subtypes"
+      "inclusion_reason": "Prostate cancer progression subtypes",
+      "size": "112 x 5244 (587,328 matrix elements, ~4.48 MB)"
     },
     {
       "id": "zheng_b_cells",
@@ -254,11 +349,16 @@
       "n_samples": 1000,
       "n_features": 2000,
       "n_clusters": 3,
-      "d_over_n": 2.00,
-      "class_balance": [400, 350, 250],
+      "d_over_n": 2.0,
+      "class_balance": [
+        400,
+        350,
+        250
+      ],
       "preprocessing": "log1p(count * 1e4 / total)",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Evaluation of HurdleGate on high zero-inflation dropouts (>75% zeros)"
+      "inclusion_reason": "Evaluation of HurdleGate on high zero-inflation dropouts (>75% zeros)",
+      "size": "1000 x 2000 (2,000,000 matrix elements, ~15.26 MB)"
     },
     {
       "id": "zheng_t_cells",
@@ -270,11 +370,17 @@
       "n_samples": 1000,
       "n_features": 2000,
       "n_clusters": 4,
-      "d_over_n": 2.00,
-      "class_balance": [300, 300, 250, 150],
+      "d_over_n": 2.0,
+      "class_balance": [
+        300,
+        300,
+        250,
+        150
+      ],
       "preprocessing": "log1p(count * 1e4 / total)",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Evaluation of zero-inflated immune subpopulation clustering"
+      "inclusion_reason": "Evaluation of zero-inflated immune subpopulation clustering",
+      "size": "1000 x 2000 (2,000,000 matrix elements, ~15.26 MB)"
     },
     {
       "id": "klein_embryonic",
@@ -286,11 +392,17 @@
       "n_samples": 1000,
       "n_features": 2000,
       "n_clusters": 4,
-      "d_over_n": 2.00,
-      "class_balance": [250, 250, 250, 250],
+      "d_over_n": 2.0,
+      "class_balance": [
+        250,
+        250,
+        250,
+        250
+      ],
       "preprocessing": "log1p(count * 1e4 / total)",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Four-stage developmental differentiation time-course"
+      "inclusion_reason": "Four-stage developmental differentiation time-course",
+      "size": "1000 x 2000 (2,000,000 matrix elements, ~15.26 MB)"
     },
     {
       "id": "baron_pancreas",
@@ -303,10 +415,20 @@
       "n_features": 2000,
       "n_clusters": 8,
       "d_over_n": 1.67,
-      "class_balance": [300, 250, 200, 150, 100, 100, 50, 50],
+      "class_balance": [
+        300,
+        250,
+        200,
+        150,
+        100,
+        100,
+        50,
+        50
+      ],
       "preprocessing": "log1p(count * 1e4 / total)",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Eight pancreatic endocrine/exocrine cell types with heavy imbalance"
+      "inclusion_reason": "Eight pancreatic endocrine/exocrine cell types with heavy imbalance",
+      "size": "1200 x 2000 (2,400,000 matrix elements, ~18.31 MB)"
     },
     {
       "id": "coil20",
@@ -319,10 +441,32 @@
       "n_features": 1024,
       "n_clusters": 20,
       "d_over_n": 0.71,
-      "class_balance": [72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72, 72],
+      "class_balance": [
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72,
+        72
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Large-K benchmark (K=20) for testing spectral blending boundaries"
+      "inclusion_reason": "Large-K benchmark (K=20) for testing spectral blending boundaries",
+      "size": "1440 x 1024 (1,474,560 matrix elements, ~11.25 MB)"
     },
     {
       "id": "umist_faces",
@@ -335,14 +479,36 @@
       "n_features": 644,
       "n_clusters": 20,
       "d_over_n": 1.12,
-      "class_balance": [28, 30, 25, 29, 32, 28, 30, 25, 29, 32, 28, 30, 25, 29, 32, 28, 30, 25, 29, 31],
+      "class_balance": [
+        28,
+        30,
+        25,
+        29,
+        32,
+        28,
+        30,
+        25,
+        29,
+        32,
+        28,
+        30,
+        25,
+        29,
+        32,
+        28,
+        30,
+        25,
+        29,
+        31
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Large-K facial identity clustering under multi-angle manifold rotation"
+      "inclusion_reason": "Large-K facial identity clustering under multi-angle manifold rotation",
+      "size": "575 x 644 (370,300 matrix elements, ~2.83 MB)"
     },
     {
       "id": "texture16",
-      "name": "Texture-16",
+      "name": "Texture-16 (Brodatz OpenML-40498)",
       "domain": "Texture Classification",
       "source_url": "https://openml.org/d/40498",
       "access_date": "2026-10-28",
@@ -351,10 +517,28 @@
       "n_features": 256,
       "n_clusters": 16,
       "d_over_n": 0.16,
-      "class_balance": [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+      "class_balance": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Large-K Brodatz structural texture discrimination"
+      "inclusion_reason": "Brodatz texture classification benchmark from OpenML ID 40498 (1,600 patches across 16 surface texture classes, 100 samples/class, 256 Gabor/spectral features) to benchmark large-K (K=16) spectral anchor blending.",
+      "size": "1600 x 256 (409,600 matrix elements, ~3.12 MB)"
     },
     {
       "id": "letter_recognition",
@@ -367,14 +551,42 @@
       "n_features": 16,
       "n_clusters": 26,
       "d_over_n": 0.008,
-      "class_balance": [78, 76, 75, 77, 76, 78, 77, 76, 75, 77, 78, 76, 75, 77, 76, 78, 77, 76, 75, 77, 78, 76, 75, 77, 76, 76],
+      "class_balance": [
+        78,
+        76,
+        75,
+        77,
+        76,
+        78,
+        77,
+        76,
+        75,
+        77,
+        78,
+        76,
+        75,
+        77,
+        76,
+        78,
+        77,
+        76,
+        75,
+        77,
+        78,
+        76,
+        75,
+        77,
+        76,
+        76
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Low-D large-K control (K=26) checking behavior when D << N"
+      "inclusion_reason": "Low-D large-K control (K=26) checking behavior when D << N",
+      "size": "2000 x 16 (32,000 matrix elements, ~250.0 KB)"
     },
     {
-      "id": "news20_fresh_subset",
-      "name": "News-20-Fresh-Subset",
+      "id": "news20_subset",
+      "name": "News-20-Subset (Fresh 15-Class OpenML-41464)",
       "domain": "Text / NLP",
       "source_url": "https://openml.org/d/41464",
       "access_date": "2026-10-28",
@@ -383,10 +595,27 @@
       "n_features": 2000,
       "n_clusters": 15,
       "d_over_n": 1.33,
-      "class_balance": [100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100],
+      "class_balance": [
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100,
+        100
+      ],
       "preprocessing": "TfidfTransformer()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Fresh 15-category text partition testing sparse high-D text bounds"
+      "inclusion_reason": "Fresh 15-category partition of 20 Newsgroups from OpenML ID 41464 (1,500 documents across 15 categories, 100 docs/class, 2,000 TF-IDF features with min-df=5), strictly disjoint from the 4-class partition evaluated in Paper 1.",
+      "size": "1500 x 2000 (3,000,000 matrix elements, ~22.89 MB)"
     },
     {
       "id": "parkinsons",
@@ -399,10 +628,14 @@
       "n_features": 22,
       "n_clusters": 2,
       "d_over_n": 0.11,
-      "class_balance": [147, 48],
+      "class_balance": [
+        147,
+        48
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Low-dimensional clinical vocal acoustic control"
+      "inclusion_reason": "Low-dimensional clinical vocal acoustic control",
+      "size": "195 x 22 (4,290 matrix elements, ~33.5 KB)"
     },
     {
       "id": "wdbc",
@@ -415,10 +648,14 @@
       "n_features": 30,
       "n_clusters": 2,
       "d_over_n": 0.05,
-      "class_balance": [357, 212],
+      "class_balance": [
+        357,
+        212
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Classical low-D pathological control (nuclear morphometry)"
+      "inclusion_reason": "Classical low-D pathological control (nuclear morphometry)",
+      "size": "569 x 30 (17,070 matrix elements, ~133.4 KB)"
     },
     {
       "id": "ionosphere",
@@ -430,11 +667,17 @@
       "n_samples": 351,
       "n_features": 34,
       "n_clusters": 2,
-      "d_over_n": 0.10,
-      "class_balance": [225, 126],
+      "d_over_n": 0.1,
+      "class_balance": [
+        225,
+        126
+      ],
       "preprocessing": "StandardScaler()",
       "sha256": "PENDING_DOWNLOAD_POST_FREEZE",
-      "inclusion_reason": "Non-omics physical radar control checking algorithm generality"
+      "inclusion_reason": "Non-omics physical radar control checking algorithm generality",
+      "size": "351 x 34 (11,934 matrix elements, ~93.2 KB)"
     }
-  ]
+  ],
+  "protocol_version": "2.0.0",
+  "preregistration_tag": "prereg-v2"
 }
