@@ -74,4 +74,4 @@ python -m pytest tests/ -v
 ---
 
 ## License
-MIT License. Developed by Akash Kundu et al. (Techno India University).
+MIT License. Developed by Akash Kundu.
