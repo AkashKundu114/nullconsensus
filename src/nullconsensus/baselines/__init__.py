@@ -2,10 +2,10 @@
 Benchmark baselines for nullconsensus.
 """
 
-from nullconsensus.baselines.m3c import M3CBaseline
 from nullconsensus.baselines.gac_random_gating import GACRandomGatingBaseline
+from nullconsensus.baselines.m3c import M3CBaseline
 
 __all__ = [
-    "M3CBaseline",
     "GACRandomGatingBaseline",
+    "M3CBaseline",
 ]

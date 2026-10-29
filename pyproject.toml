@@ -17,6 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
@@ -45,6 +46,24 @@ Issues = "https://github.com/AkashKundu114/nullconsensus/issues"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+exclude = [
+    ".pytest_cache",
+    ".ruff_cache",
+    ".mypy_cache",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+ignore_missing_imports = true
+warn_unused_configs = true
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]

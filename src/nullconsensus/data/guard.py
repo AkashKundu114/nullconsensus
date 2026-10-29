@@ -9,9 +9,11 @@ import subprocess
 from datetime import datetime
 from pathlib import Path
 
+
 class DataPeekingViolation(Exception):
     """Raised when an unauthorized attempt is made to load TEST datasets before the freeze tag."""
-    pass
+
+
 
 def get_git_executable() -> str:
     git_path = shutil.which("git")
@@ -19,23 +21,24 @@ def get_git_executable() -> str:
         return git_path
     common_paths = [
         r"C:\Program Files\Git\cmd\git.exe",
-        r"C:\Program Files\Git\bin\git.exe"
+        r"C:\Program Files\Git\bin\git.exe",
     ]
     for p in common_paths:
         if os.path.exists(p):
             return p
     return "git"
 
+
 def verify_test_access_allowed(dataset_name: str) -> bool:
     """
     Verifies whether loading a TEST dataset is legally permitted under protocol R2.
-    
+
     Conditions for access:
     1. FREEZE_TAG environment variable must be set.
     2. FREEZE_TAG must start with 'freeze-'.
     3. Git must recognize FREEZE_TAG as an existing tag.
     4. Working tree must be clean.
-    
+
     Raises:
         DataPeekingViolation if any condition is violated.
     """
@@ -61,11 +64,18 @@ def verify_test_access_allowed(dataset_name: str) -> bool:
     except DataPeekingViolation:
         raise
     except Exception as e:
-        raise DataPeekingViolation(f"Git verification failed for freeze tag '{freeze_tag}': {e}")
+        raise DataPeekingViolation(
+            f"Git verification failed for freeze tag '{freeze_tag}': {e}"
+        )
 
     # Check working tree is clean
     try:
-        diff_res = subprocess.run([git_exe, "status", "--porcelain"], capture_output=True, text=True, check=True)
+        diff_res = subprocess.run(
+            [git_exe, "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
         if diff_res.stdout.strip():
             raise DataPeekingViolation(
                 f"ACCESS DENIED to TEST dataset '{dataset_name}'. "
