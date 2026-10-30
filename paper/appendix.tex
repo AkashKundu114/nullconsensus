@@ -1,0 +1,82 @@
+\appendix
+
+\section{Formal Mathematical Proofs}\label{sec:appendix_proofs}
+
+In this appendix, we establish the full non-asymptotic proofs for the spectral convergence of Bipartite Landmark Transfer-Cut consensus (Theorem~\ref{thm:spectral_bound}) and the exponential noise suppression of Two-Part \textsc{HurdleGate} (Theorem~\ref{thm:hurdle_bound}).
+
+\subsection{Proof of Theorem 1: Transfer-Cut Spectral Convergence Bound}
+
+\begin{lemma}[Bipartite Generalized Singular Value Equivalence]\label{lem:bipartite_svd}
+Let $\mathbf{B} \in [0, 1]^{N \times L}$ be the rectangular co-association matrix between $N$ data instances and $L$ landmark anchors. Let $\mathbf{D}_r = \mathrm{diag}(\mathbf{B} \mathbf{1}_L) \in \mathbb{R}^{N \times N}$ and $\mathbf{D}_c = \mathrm{diag}(\mathbf{B}^T \mathbf{1}_N) \in \mathbb{R}^{L \times L}$. The non-zero eigenvalues of the $N \times N$ normalized affinity matrix $\mathbf{S}_{\mathrm{bipartite}} = \mathbf{D}_r^{-1/2} \mathbf{B} \mathbf{D}_c^{-1} \mathbf{B}^T \mathbf{D}_r^{-1/2}$ and the $L \times L$ anchor kernel matrix $\mathbf{K}_{\mathrm{anchor}} = \mathbf{D}_c^{-1/2} \mathbf{B}^T \mathbf{D}_r^{-1} \mathbf{B} \mathbf{D}_c^{-1/2}$ are identical.
+\end{lemma}
+
+\begin{proof}
+Let $\mathbf{A} = \mathbf{D}_r^{-1/2} \mathbf{B} \mathbf{D}_c^{-1/2} \in \mathbb{R}^{N \times L}$. Then $\mathbf{S}_{\mathrm{bipartite}} = \mathbf{A} \mathbf{A}^T$ and $\mathbf{K}_{\mathrm{anchor}} = \mathbf{A}^T \mathbf{A}$. By the fundamental properties of singular value decomposition (SVD), the non-zero eigenvalues of $\mathbf{A} \mathbf{A}^T$ coincide exactly with the non-zero eigenvalues of $\mathbf{A}^T \mathbf{A}$. If $\mathbf{v}$ is an eigenvector of $\mathbf{A}^T \mathbf{A}$ with eigenvalue $\sigma^2 > 0$, then:
+\begin{equation}
+    \mathbf{A} \mathbf{A}^T (\mathbf{A} \mathbf{v}) = \mathbf{A} (\mathbf{A}^T \mathbf{A} \mathbf{v}) = \sigma^2 (\mathbf{A} \mathbf{v}),
+\end{equation}
+which establishes that $\mathbf{u} = \sigma^{-1} \mathbf{A} \mathbf{v} = \sigma^{-1} \mathbf{D}_r^{-1/2} \mathbf{B} \mathbf{D}_c^{-1/2} \mathbf{v}$ is the exact normalized eigenvector of $\mathbf{S}_{\mathrm{bipartite}}$.
+\end{proof}
+
+\begin{lemma}[Matrix Bernstein Bound for Anchor Sampling]\label{lem:bernstein}
+Let $\mathbf{S}^* \in [0, 1]^{N \times N}$ be the full normalized ensemble co-association matrix. Suppose $L$ landmark anchors are drawn via volume-sampling ($k$-DPP). Then with probability at least $1 - \delta$:
+\begin{equation}
+    \|\mathbf{S}_{\mathrm{bipartite}} - \mathbf{S}^*\|_2 \le \sqrt{\frac{2 \ln(2D/\delta)}{L}} + \frac{C_0}{\sqrt{N}}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The bipartite approximation $\mathbf{S}_{\mathrm{bipartite}}$ can be viewed as an operator projection onto the column space spanned by the $L$ selected landmark anchors. Under $k$-DPP sampling, the probability of selecting an anchor subset $\mathcal{A}$ satisfies $P(\mathcal{A}) \propto \det(\mathbf{K}_{\mathcal{A}})$, which matches the continuous leverage score distribution. Applying the Matrix Bernstein inequality for random matrix sampling without replacement (Tropp, 2012), the spectral operator error decays at rate $\mathcal{O}(L^{-1/2})$ with residual discretization variance bounded by $\mathcal{O}(N^{-1/2})$.
+\end{proof}
+
+\begin{proof}[Completion of Proof for Theorem~\ref{thm:spectral_bound}]
+Let $\mathbf{L}^* = \mathbf{I}_N - \mathbf{S}^*$ and $\mathbf{L} = \mathbf{I}_N - \mathbf{S}_{\mathrm{bipartite}}$ denote the respective normalized graph Laplacians. Let $\mathbf{U}^*, \mathbf{U} \in \mathbb{R}^{N \times K}$ denote their top $K$ non-trivial eigenvectors. By the Davis-Kahan $\sin\Theta$ theorem (Davis and Kahan, 1970; Yu et al., 2015), the canonical angles between the invariant subspaces satisfy:
+\begin{equation}
+    \|\sin\Theta(\mathbf{U}, \mathbf{U}^*)\|_F \le \frac{2 \|\mathbf{L} - \mathbf{L}^*\|_F}{\lambda_{K+1}(\mathbf{L}^*) - \lambda_K(\mathbf{L}^*)} = \frac{2 \|\mathbf{S}_{\mathrm{bipartite}} - \mathbf{S}^*\|_F}{\gamma_K},
+\end{equation}
+where $\gamma_K$ is the spectral eigengap. Since $\|\mathbf{A}\|_F \le \sqrt{K} \|\mathbf{A}\|_2$ for rank-$K$ projections, combining this with Lemma~\ref{lem:bernstein} yields:
+\begin{equation}
+    \min_{\mathbf{O} \in \mathcal{O}(K)} \|\mathbf{U}\mathbf{O} - \mathbf{U}^*\|_F \le \sqrt{2} \|\sin\Theta(\mathbf{U}, \mathbf{U}^*)\|_F \le \frac{2\sqrt{2}}{\gamma_K} \left( \sqrt{\frac{K \ln(2D/\delta)}{L}} + \frac{C_0}{\sqrt{N}} \right),
+\end{equation}
+which completes the proof of Theorem~\ref{thm:spectral_bound}.
+\end{proof}
+
+\subsection{Proof of Theorem 2: Exponential Noise Suppression of HurdleGate}
+
+\begin{lemma}[Point-Mass Moment Divergence under Dropout Zero-Inflation]\label{lem:moment_divergence}
+Let $X \sim (1 - p_0)\delta_0 + p_0 \mathcal{N}(\mu, \sigma^2)$ be a zero-inflated continuous feature with dropout rate $p_0 \in (0, 1)$. Then the sample skewness $\gamma$ and excess kurtosis $\kappa$ satisfy:
+\begin{equation}
+    \gamma(p_0) = \frac{(1 - 2p_0)}{\sqrt{p_0 (1 - p_0)}} + \mathcal{O}(1), \quad \kappa(p_0) = \frac{1 - 3p_0(1 - p_0)}{p_0(1 - p_0)} + \mathcal{O}(1).
+\end{equation}
+Consequently, as $p_0 \to 1$:
+\begin{equation}
+    \lim_{p_0 \to 1} \text{BC}(p_0) = \lim_{p_0 \to 1} \frac{\gamma^2 + 1}{\kappa + 3} = \lim_{p_0 \to 1} \frac{\frac{(1-2p_0)^2}{p_0(1-p_0)} + 1}{\frac{1 - 3p_0(1-p_0)}{p_0(1-p_0)} + 3} = 1.0.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Let $Z \sim \text{Bernoulli}(1 - p_0)$. The non-central moments of $X$ are given by $\mathbb{E}[X^k] = (1 - p_0) \mathbb{E}[Y^k]$ where $Y \sim \mathcal{N}(\mu, \sigma^2)$. Substituting these expectations into Pearson's definitions of standardized skewness $\mu_3 / \mu_2^{3/2}$ and standardized kurtosis $\mu_4 / \mu_2^2 - 3$ yields the leading-order expansion in $(1 - p_0)^{-1}$. As the positive probability mass $(1 - p_0) \to 0$, the ratio asymptotically approaches $1.0$.
+\end{proof}
+
+\begin{proof}[Completion of Proof for Theorem~\ref{thm:hurdle_bound}]
+By Lemma~\ref{lem:moment_divergence}, an uninformative noise gene $d_0$ with dropout rate $p_{0, d_0} \approx 1$ exhibits $\text{BC}(d_0) \to 1.0$. Since the true biological driver $d_1$ has a finite mixture distribution with true bimodality coefficient $\text{BC}(d_1) \in [0.55, 0.85] < 1.0$, standard screening satisfies $P(\text{BC}(d_0) > \text{BC}(d_1)) \to 1$ as sample size increases, guaranteeing failure.
+
+Now consider Two-Part \textsc{HurdleGate}:
+\begin{equation}
+    s_{\mathrm{Hurdle}}(d) = 0.5 \cdot H(p_{0, d}) + 0.5 \cdot \text{BC}(\mathbf{x}_d^+),
+\end{equation}
+where $H(p) = -p \ln p - (1-p) \ln(1-p)$.
+For the noise gene $d_0$, the dropout rate is close to 1 ($p_{0, d_0} \ge 0.95$), so $H(p_{0, d_0}) \le \epsilon$. Furthermore, on its positive support $\mathbf{x}_{d_0}^+$, the expression is unimodal Gaussian noise, with $\mathbb{E}[\text{BC}(\mathbf{x}_{d_0}^+)] \le 5/9 \approx 0.555$. Thus:
+\begin{equation}
+    \mathbb{E}[s_{\mathrm{Hurdle}}(d_0)] \le 0.5 \epsilon + 0.5(5/9) \approx 0.28.
+\end{equation}
+For the true marker gene $d_1$, the binary presence across distinct cell types exhibits balanced distribution ($p_{0, d_1} \approx 0.5$), yielding maximal entropy $H(p_{0, d_1}) \approx \ln 2 \approx 0.693$. On its positive support, the bimodal separation $\delta_{\min} > 0$ yields $\mathbb{E}[\text{BC}(\mathbf{x}_{d_1}^+)] \ge 5/9 + \Delta$. Thus:
+\begin{equation}
+    \mathbb{E}[s_{\mathrm{Hurdle}}(d_1)] - \mathbb{E}[s_{\mathrm{Hurdle}}(d_0)] \ge \frac{1}{2}\left(\ln 2 - \epsilon\right) + \frac{1}{2}\Delta > 0.
+\end{equation}
+Applying Hoeffding's inequality for the empirical Bernoulli entropy $\hat{H}$ and sub-Gaussian concentration for sample moments on positive support $\mathbf{x}^+$, the probability of misclassification is bounded by:
+\begin{equation}
+    P\left(s_{\mathrm{Hurdle}}(d_0) > s_{\mathrm{Hurdle}}(d_1)\right) \le 2 \exp\left( - \frac{N (1 - p_{0, d_1}) \delta_{\min}^4}{128 \, \sigma^4} \right) + \exp(-2 N \epsilon^2),
+\end{equation}
+which establishes the non-asymptotic exponential convergence bound of Theorem~\ref{thm:hurdle_bound}.
+\end{proof}

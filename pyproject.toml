@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nullconsensus"
-version = "0.1.0"
-description = "Permutation-Null Calibrated Consensus Clustering for High-Dimensional Manifolds"
+version = "0.2.0"
+description = "Permutation-Null Calibrated and Self-Tuning Consensus Clustering for High-Dimensional Manifolds"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }

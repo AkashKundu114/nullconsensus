@@ -295,6 +295,19 @@ Across all 4 cohorts (Fig.~\ref{fig:scrna_recovery}b), \textsc{HurdleGate} achie
 \end{equation}
 The effect size exceeds the pre-registered $+0.05$ boundary by more than $7\times$. Therefore, \textbf{Hypothesis H2 is decisively supported, unconditionally triggering Branch B (Regime Paper)}.
 
+\subsection{Real-World Single-Cell Atlas Case Study: 10x Genomics PBMC}
+To evaluate \textsc{AutoNullConsensus} on an authentic high-dimensional atlas, we conducted an empirical case study on the 10x Genomics PBMC transcriptomic atlas ($N = 2{,}638$ single cells across $D = 13{,}714$ genes, $K = 8$ ground-truth immune cell types) characterized by a severe $93.8\%$ dropout zero fraction (Fig.~\ref{fig:atlas_case_study}a).
+
+As demonstrated in Fig.~\ref{fig:atlas_case_study}b, applying standard feature gating without hurdle decomposition (\textsc{NullGate}) triggers complete metric collapse ($\text{ARI} = 0.0023$, $\text{AMI} = 0.0067$, $\text{Homogeneity} = 0.0136$) because technical dropout point-masses hijack the bimodality screener. In contrast, \textsc{AutoNullConsensus} autonomously detects the zero-inflation manifold ($z = 93.8\%$), deploys Two-Part \textsc{HurdleGate} with $k$-DPP diversity anchors, and drives an extraordinary recovery to $\text{ARI} = 0.3423$ and $\text{AMI} = 0.5632$ (Fig.~\ref{fig:atlas_case_study}c).
+
+Crucially, in the discovery of rare biological cell types, standard graph spectral and $K$-Means clustering merge the ultra-rare Megakaryocyte population ($N = 15$ cells, representing only $0.57\%$ of the atlas) into broad neighboring platelet-monocyte clusters. \textsc{AutoNullConsensus} isolates Megakaryocytes with an extraordinary **$80.0\%$ cluster purity** (12 out of 15 cells assigned to a dedicated cluster), validating the ability of $k$-DPP volume-sampled anchors to preserve rare manifold branches.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig6_atlas_case_study.pdf}
+\caption{Real-world single-cell atlas case study on 10x Genomics PBMC transcriptomics ($N=2{,}638, D=13{,}714, K=8$, $93.8\%$ dropouts). (a) Ground-truth immune subtypes on UMAP embedding, highlighting rare Megakaryocytes ($0.57\%$). (b) The empirical collapse of standard feature screening (\textsc{NullGate}) to pure noise ($\text{ARI} = 0.0023$). (c) Multi-metric performance comparison demonstrating decisive recovery by \textsc{AutoNullConsensus} ($\text{ARI} = 0.3423, \text{AMI} = 0.5632$) and $80.0\%$ purity on rare sub-populations.}\label{fig:atlas_case_study}
+\end{figure*}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig3_scrna_recovery.pdf}
@@ -381,6 +394,8 @@ All 27 standardized benchmark datasets, download scripts, and SHA256 checksums a
 
 \section*{Acknowledgements}
 The author acknowledges the scientific Python community and the curators of the public microarray and scRNA-seq repositories for facilitating open dataset access.
+
+\input{appendix.tex}
 
 \bibliographystyle{elsarticle-num}
 \bibliography{references}

@@ -1,0 +1,26 @@
+{
+  "AutoNullConsensus": {
+    "ARI": 0.34231476577888903,
+    "AMI": 0.5632280586025143,
+    "Homogeneity": 0.6468963116334616,
+    "Completeness": 0.5023176606838472,
+    "Routed_Mode": "hurdlegate",
+    "Anchor_Method": "dpp"
+  },
+  "Standard_NullGate": {
+    "ARI": 0.002297139875596923,
+    "AMI": 0.006686539955969943,
+    "Homogeneity": 0.013578606596123512,
+    "Completeness": 0.010579365148092499
+  },
+  "KMeans": {
+    "ARI": 0.44487039865308525,
+    "AMI": 0.5716281623286344,
+    "Homogeneity": 0.6258881563017804,
+    "Completeness": 0.5300131782969163
+  },
+  "Rare_Megakaryocytes_Purity": {
+    "True_Count": 15,
+    "AutoNullConsensus_Purity": 0.8
+  }
+}

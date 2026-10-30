@@ -22,6 +22,7 @@ dist/
 data/cache/
 data/raw/
 *.csv
+*.h5ad
 !lit/*.csv
 !results/*.json
 !data/test_manifest.json
