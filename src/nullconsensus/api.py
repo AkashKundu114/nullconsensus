@@ -1,6 +1,8 @@
 """
-Top-level Scikit-Learn Compatible Estimator for nullconsensus.
-Integrates Candidate 12 (NullGate) with Candidate 2 (HurdleGate).
+Top-level Scikit-Learn Compatible Estimators for nullconsensus.
+Provides:
+  - NullConsensus: Permutation-Null and Hurdle-gated consensus clustering.
+  - AutoNullConsensus: Self-tuning, geometry-adaptive universal consensus clustering engine.
 """
 
 from typing import Literal
@@ -9,6 +11,9 @@ import numpy as np
 from sklearn.base import BaseEstimator, ClusterMixin
 from sklearn.cluster import KMeans, SpectralClustering
 
+from nullconsensus.core.anchors import select_anchors
+from nullconsensus.core.gpu_backend import solve_transfer_cut
+from nullconsensus.core.router import ManifoldProfile, profile_manifold
 from nullconsensus.methods.hurdlegate import HurdleGateFeatureSelector
 from nullconsensus.methods.nullgate import NullGateFeatureSelector
 
@@ -35,7 +40,7 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         n_base_models: Number of base partitions in the ensemble (M). Default: 25.
         n_anchors: Number of landmark anchors (L). Default: 40.
         subspace_fraction: Fraction of features sampled per base model (alpha). Default: 0.15.
-        mode: Feature gating mode ('nullgate', 'hurdlegate', or 'uniform'). Default: 'nullgate'.
+        mode: Feature gating mode ('nullgate', 'hurdlegate', 'uniform', or 'auto'). Default: 'nullgate'.
         temperature: Softmax temperature for saliency-weighted subspace sampling. Default: 1.0.
         null_reference: Reference null for NullGate ('gaussian' or 'uniform'). Default: 'gaussian'.
         n_null_draws: Number of finite-sample null draws for NullGate. Default: 200.
@@ -49,13 +54,15 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         n_anchors: int = 40,
         subspace_fraction: float = 0.15,
         mode: Literal[
-            "nullgate", "hurdlegate", "uniform", "permutation_null", "hurdle"
+            "nullgate", "hurdlegate", "uniform", "permutation_null", "hurdle", "auto"
         ] = "nullgate",
         temperature: float = 1.0,
         null_reference: Literal["gaussian", "uniform"] = "gaussian",
         n_null_draws: int = 200,
         n_null_permutations: int | None = None,
         base_clusterer: Literal["auto", "kmeans", "spectral"] = "auto",
+        anchor_method: Literal["auto", "dpp", "kmeans", "random"] = "random",
+        device: Literal["auto", "cpu", "cuda"] = "auto",
         random_state: int = 42,
     ):
         self.n_clusters = n_clusters
@@ -70,15 +77,20 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         )
         self.n_null_permutations = self.n_null_draws
         self.base_clusterer = base_clusterer
+        self.anchor_method = anchor_method
+        self.device = device
         self.random_state = random_state
 
         # Fitted attributes
         self.labels_: np.ndarray | None = None
+        self.embedding_: np.ndarray | None = None
         self.centroids_: np.ndarray | None = None
         self.active_features_: np.ndarray | None = None
         self.feature_weights_: np.ndarray | None = None
         self.sampling_probs_: np.ndarray | None = None
         self.selector_: NullGateFeatureSelector | HurdleGateFeatureSelector | None = None
+        self.profile_: ManifoldProfile | None = None
+        self.mode_: str = mode
 
     def fit(self, X: np.ndarray, y: np.ndarray | None = None) -> "NullConsensus":
         """
@@ -88,9 +100,15 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         N, D = X.shape
         rng = np.random.default_rng(self.random_state)
 
+        # 0. Automatic Regime Routing if requested
+        if self.mode.lower() == "auto":
+            self.profile_ = profile_manifold(X, n_clusters=self.n_clusters, random_state=self.random_state)
+            self.mode_ = self.profile_.recommended_mode
+        else:
+            self.mode_ = self.mode.lower()
+
         # 1. Feature Saliency Weighting
-        normalized_mode = self.mode.lower()
-        if normalized_mode in ["nullgate", "permutation_null"]:
+        if self.mode_ in ["nullgate", "permutation_null"]:
             self.selector_ = NullGateFeatureSelector(
                 null_reference=self.null_reference,
                 n_null_draws=self.n_null_draws,
@@ -99,7 +117,7 @@ class NullConsensus(BaseEstimator, ClusterMixin):
             self.selector_.fit(X, temperature=self.temperature)
             self.sampling_probs_ = self.selector_.sampling_probs_
             self.feature_weights_ = self.selector_.saliency_scores_
-        elif normalized_mode in ["hurdlegate", "hurdle"]:
+        elif self.mode_ in ["hurdlegate", "hurdle"]:
             self.selector_ = HurdleGateFeatureSelector(random_state=self.random_state)
             self.selector_.fit(X, temperature=self.temperature)
             self.sampling_probs_ = self.selector_.sampling_probs_
@@ -124,7 +142,13 @@ class NullConsensus(BaseEstimator, ClusterMixin):
 
         # 2. Select L Landmark Anchors
         L = min(self.n_anchors, N)
-        anchor_idx = rng.choice(N, size=L, replace=False)
+        if self.anchor_method == "random":
+            anchor_idx = rng.choice(N, size=L, replace=False)
+        else:
+            anchor_method_to_use = self.anchor_method
+            if anchor_method_to_use == "auto":
+                anchor_method_to_use = self.profile_.recommended_anchor_method if self.profile_ else "dpp"
+            anchor_idx = select_anchors(X, L=L, method=anchor_method_to_use, random_state=self.random_state)
 
         # Determine base clustering engine
         if self.base_clusterer == "auto":
@@ -176,37 +200,17 @@ class NullConsensus(BaseEstimator, ClusterMixin):
             )
             B += match_matrix / self.n_base_models
 
-        # 4. Bipartite Transfer-Cut Spectral Embedding
+        # 4. Bipartite Transfer-Cut Spectral Embedding (CPU/GPU)
         try:
-            row_sums = B.sum(axis=1, keepdims=True)
-            row_sums[row_sums < 1e-12] = 1.0
-            B_norm = B / row_sums
-
-            W_anchor = B_norm.T @ B_norm
-            deg = W_anchor.sum(axis=1)
-            deg_inv_sqrt = 1.0 / np.sqrt(np.fmax(deg, 1e-12))
-            L_norm = np.eye(L) - (deg_inv_sqrt[:, None] * W_anchor * deg_inv_sqrt[None, :])
-
-            evals, evecs = np.linalg.eigh(L_norm)
-            if L > self.n_clusters:
-                V_core = evecs[:, 1 : self.n_clusters + 1]
-                sig = np.fmax(1.0 - evals[1 : self.n_clusters + 1], 1e-9)
-            else:
-                V_core = evecs[:, : self.n_clusters]
-                sig = np.fmax(1.0 - evals[: self.n_clusters], 1e-9)
-
-            U_emb = B_norm @ (deg_inv_sqrt[:, None] * V_core) / np.sqrt(sig)
-            norms = np.linalg.norm(U_emb, axis=1, keepdims=True)
-            norms[norms < 1e-12] = 1e-12
-            embeddings = U_emb / norms
+            self.embedding_, _ = solve_transfer_cut(B, n_clusters=self.n_clusters, device=self.device)
         except Exception:
-            embeddings = B[:, : min(self.n_clusters, L)]
+            self.embedding_ = B[:, : min(self.n_clusters, L)]
 
         # Final consensus clustering on normalized spectral embedding
         final_km = KMeans(
             n_clusters=self.n_clusters, n_init=10, random_state=self.random_state
         )
-        self.labels_ = final_km.fit_predict(embeddings)
+        self.labels_ = final_km.fit_predict(self.embedding_)
 
         # 5. Compute Active Subspace Centroids for Inductive Inference
         self.centroids_ = np.zeros((self.n_clusters, len(self.active_features_)))
@@ -245,3 +249,41 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         self.fit(X, y)
         assert self.labels_ is not None
         return self.labels_
+
+
+class AutoNullConsensus(NullConsensus):
+    """
+    Self-Tuning, Geometry-Adaptive Universal Consensus Clustering (AutoNullConsensus).
+
+    Autonomously audits input data geometry, sparsity patterns, and intrinsic dimensionality:
+      - On zero-inflated manifolds (scRNA-seq with dropouts > 30%): automatically activates Two-Part HurdleGate.
+      - On high-dimensional continuous manifolds (D/N > 10, N < 150): deploys uniform random subspaces.
+      - On complex/multi-class benchmarks (K >= 8 or N >= 2000): deploys k-DPP diversity anchor seeding.
+      - On CUDA GPU hardware: executes in sub-second time via PyTorch tensor Lanczos Transfer-Cuts.
+    """
+
+    def __init__(
+        self,
+        n_clusters: int = 5,
+        n_base_models: int = 25,
+        n_anchors: int = 40,
+        subspace_fraction: float = 0.15,
+        mode: Literal["auto", "nullgate", "hurdlegate", "uniform"] = "auto",
+        anchor_method: Literal["auto", "dpp", "kmeans", "random"] = "auto",
+        temperature: float = 1.0,
+        device: Literal["auto", "cpu", "cuda"] = "auto",
+        random_state: int = 42,
+        **kwargs,
+    ):
+        super().__init__(
+            n_clusters=n_clusters,
+            n_base_models=n_base_models,
+            n_anchors=n_anchors,
+            subspace_fraction=subspace_fraction,
+            mode=mode,
+            temperature=temperature,
+            anchor_method=anchor_method,
+            device=device,
+            random_state=random_state,
+            **kwargs,
+        )

@@ -1,8 +1,9 @@
 """
-Permutation-Null Calibrated Consensus Clustering (nullconsensus).
+Permutation-Null Calibrated and Self-Tuning Consensus Clustering (nullconsensus).
 """
 
-from nullconsensus.api import NullConsensus
+from nullconsensus.api import AutoNullConsensus, NullConsensus
+import nullconsensus.integrations as tl
 from nullconsensus.methods.hurdlegate import HurdleGateFeatureSelector
 from nullconsensus.methods.nullgate import (
     NullGateFeatureSelector,
@@ -10,11 +11,13 @@ from nullconsensus.methods.nullgate import (
     compute_sarle_bc,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
-    "HurdleGateFeatureSelector",
+    "AutoNullConsensus",
     "NullConsensus",
+    "HurdleGateFeatureSelector",
     "NullGateFeatureSelector",
     "compute_bc_vectorized",
     "compute_sarle_bc",
+    "tl",
 ]
