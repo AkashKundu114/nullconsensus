@@ -38,9 +38,17 @@ def estimate_intrinsic_dim(X: np.ndarray, n_subsample: int = 500, random_state: 
     idx = rng.choice(N, size=sub_size, replace=False)
     X_sub = X[idx]
 
-    # Compute pairwise Euclidean distances for subsample
-    diff = X_sub[:, None, :] - X_sub[None, :, :]
-    dist_mat = np.sqrt(np.sum(diff ** 2, axis=-1))
+    # Compute pairwise Euclidean distances for subsample safely using cdist (O(N^2) memory, NOT O(N^2 * D))
+    from scipy.spatial.distance import cdist
+    if X_sub.shape[1] > 100:
+        # Fast random projection sketch to 50D for distance calculation
+        rng_proj = np.random.default_rng(random_state)
+        sketch_dim = min(50, X_sub.shape[1])
+        R = rng_proj.standard_normal((X_sub.shape[1], sketch_dim)) / np.sqrt(sketch_dim)
+        X_sub_proj = X_sub @ R
+        dist_mat = cdist(X_sub_proj, X_sub_proj, metric="euclidean")
+    else:
+        dist_mat = cdist(X_sub, X_sub, metric="euclidean")
     np.fill_diagonal(dist_mat, np.inf)
 
     # Sort distances to get r1 (first nearest neighbor) and r2 (second nearest neighbor)
