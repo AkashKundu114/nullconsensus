@@ -102,3 +102,37 @@ To guarantee scientific integrity and prevent post-hoc overfitting to developmen
 - **Hypothesis H2 (Hurdle Count Recovery):** PASSED ($\Delta\text{ARI} = +0.1497 \ge +0.0500$).
 - **Architecture & Baseline Suite:** 12 baselines fully implemented and unit tested (29/29 passing).
 - **Decision:** Ready for git tagging `freeze-v1` to officially conclude Phase B4 and unlock Phase B5/B6.
+
+---
+
+## Phase B6: Confirmatory Test Benchmark Execution (Completed - October 30, 2026)
+- **Execution Battery:** 6,880 completed model evaluations across 27 sealed public benchmark cohorts (15 oncology microarrays, 4 scRNA-seq zero-inflated count manifolds, 5 multi-class benchmarks, 3 physical controls) logged in `results/test_benchmark.csv`.
+- **Pre-Registered Hypotheses Evaluation:**
+  - **Hypothesis H1 (Oncology Microarrays, $D/N > 20$):** Falsified ($\Delta\text{ARI} = -0.0433, p_{\text{holm}} = 0.2293$ vs matched uniform random gating). Uniform random gating reached Rank #3 (Mean ARI = 0.255) while null screening achieved Rank #8 (0.211), proving that unimodal reference nulls behave over-conservatively on small sample sizes ($N < 100$).
+  - **Hypothesis H2 (scRNA-seq Count Recovery via HurdleGate):** Decisively confirmed ($\Delta\text{ARI} = +0.3832, 95\%\text{ CI: } [+0.3157, +0.4596], p = 3.57 \times 10^{-8}$). Decoupling Bernoulli dropout point-masses from positive continuous support multimodality prevents catastrophic collapse ($\text{ARI} \approx 0.04 \to 0.79$). Branch B (Regime Paper) triggered per protocol.
+  - **Hypothesis H4 (Cross-Seed Variance Ratio):** Falsified ($\overline{R} = 0.6640$, upper CI bound $2.0056 > 0.70$).
+  - **Omnibus Friedman Rank Test:** $\chi^2 = 52.39, p = 2.31 \times 10^{-7}$ across all 27 datasets.
+- **Decision:** Test phase concluded cleanly with zero protocol violations. Proceed to Phase B7/B8.
+
+---
+
+## Phase B7: Manuscript Authoring & LaTeX Migration (Completed - October 30, 2026)
+- **Target Journal:** Elsevier *Pattern Recognition*.
+- **Declarative Title:** *"Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds"*.
+- **Artifacts:**
+  - `paper/numbers.tex`: Single source of truth metrics.
+  - `paper/tables/`: Table 1 (Manifest), Table 2 (Cancer), Table 3 (scRNA-seq), Table 4 (General), Table 5 (Omnibus Contrasts).
+  - `paper/main.tex`: Formatted under Elsevier `elsarticle.cls`.
+
+---
+
+## Phase B8: Visual Artifacts, Submission Package & Reproducibility (Completed - October 30, 2026)
+- **Publication Figures:** 5 high-resolution vector figures generated in `paper/figures/`:
+  - `fig1_method_architecture`: NullConsensus Transfer-Cut pipeline and HurdleGate mechanism.
+  - `fig2_cancer_falsification`: Oncology microarray performance and H1 falsification distributions.
+  - `fig3_scrna_recovery`: Single-cell dropout collapse and HurdleGate recovery (+0.3832 gain).
+  - `fig4_omnibus_ranks`: Omnibus Friedman algorithm ranks across 27 cohorts.
+  - `fig5_regime_taxonomy`: Practitioner decision framework for high-dimensional clustering.
+- **Submission Bundle:** Created `submission/` package with `main.pdf`, `source.zip`, `COVER_LETTER.md`, `HIGHLIGHTS.md`, and `CHECKLIST.md`.
+- **Reproducibility:** Codified complete push-button reproduction suite in `REPRODUCIBILITY.md` with SHA256 checksums.
+- **Test Battery:** 32 passing unit tests (100% pass rate).

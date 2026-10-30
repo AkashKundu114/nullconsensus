@@ -260,7 +260,91 @@ def main():
         f.write("}\n")
         f.write("\\end{table*}\n")
 
-    # 5. Statistical Numbers & LaTeX Macros (numbers.tex)
+    # 5. Omnibus Statistical Contrasts Table (Table 5)
+    print("Generating Table 5: Omnibus Statistical Contrasts...")
+    competitors = [m for m in universal_methods if m != "nullconsensus"]
+
+    # Compute pairwise tests across all 27 datasets
+    table5_rows = []
+    nc_vals = pivot_mean["nullconsensus"].values
+
+    raw_p_list = []
+    for m in competitors:
+        m_vals = pivot_mean[m].values
+        diffs = nc_vals - m_vals
+        stat, p_val = wilcoxon(nc_vals, m_vals)
+        raw_p_list.append(float(p_val))
+
+    # Holm-Bonferroni correction
+    m_tests = len(raw_p_list)
+    sort_indices = np.argsort(raw_p_list)
+    holm_p_list = np.empty(m_tests)
+    for r, idx in enumerate(sort_indices):
+        holm_p_list[idx] = min(1.0, raw_p_list[idx] * (m_tests - r))
+    for idx in range(1, m_tests):
+        holm_p_list[sort_indices[idx]] = max(holm_p_list[sort_indices[idx]], holm_p_list[sort_indices[idx - 1]])
+
+    method_families = {
+        "ward": "Hierarchical Agglomerative",
+        "std_consensus": "Dense Consensus Ensemble",
+        "m3c": "Monte Carlo Consensus",
+        "spectral": "Graph Spectral",
+        "kmeans": "Classical Partitioning",
+        "gac_random_gating": "Anchor + Random Gating",
+        "fcag": "Anchor Graph Spectral",
+        "core_halo": "Stability-Weighted Ensemble",
+        "sparse_kmeans": "Sparse $L_1$ Weighting",
+        "icc_v2": "Anchor + Marginal BC (Paper 1)",
+        "cohirf": "Random Subspace Ensemble",
+    }
+
+    # Sort competitors by their mean rank
+    ranks_all_comp = pivot_mean[universal_methods].rank(axis=1, ascending=False).mean()
+    sorted_competitors = sorted(competitors, key=lambda m: ranks_all_comp[m])
+
+    with open(TABLES_DIR / "table5_omnibus_tests.tex", "w", encoding="utf-8") as f:
+        f.write("% Auto-generated from results/test_benchmark.csv\n")
+        f.write("\\begin{table*}[t]\n")
+        f.write("\\caption{Omnibus pairwise statistical contrasts between \\textsc{NullConsensus} and all 11 competitor baselines across the 27 sealed benchmark cohorts (6,880 evaluations). $\\Delta\\text{ARI} = \\text{ARI}_{\\text{NullConsensus}} - \\text{ARI}_{\\text{Baseline}}$. Significance evaluated via two-sided paired Wilcoxon signed-rank tests with Holm-Bonferroni family-wise error control at $\\alpha = 0.05$.}\\label{tab:omnibus_tests}\n")
+        f.write("\\centering\\small\n")
+        f.write("\\resizebox{\\textwidth}{!}{\n")
+        f.write("\\begin{tabular}{llcccccc}\n")
+        f.write("\\toprule\n")
+        f.write("Baseline Algorithm & Algorithmic Family & Mean ARI & Mean Rank & $\\Delta\\text{ARI}$ & 95\\% Bootstrap CI & $p_{\\text{raw}}$ & $p_{\\text{holm}}$ \\\\\n")
+        f.write("\\midrule\n")
+
+        for m in sorted_competitors:
+            m_idx = competitors.index(m)
+            m_mean = pivot_mean[m].mean()
+            m_rank = ranks_all_comp[m]
+            diffs = nc_vals - pivot_mean[m].values
+            mean_diff = float(np.mean(diffs))
+            ci_low, ci_high = bootstrap_ci(diffs)
+            p_raw = raw_p_list[m_idx]
+            p_holm = holm_p_list[m_idx]
+
+            clean_label = method_labels[m]
+            family = method_families.get(m, "General")
+
+            p_raw_str = format_p_value_tex(p_raw)
+            p_holm_str = format_p_value_tex(p_holm)
+            if p_holm < 0.05:
+                sig_star = "\\textsuperscript{*}"
+            else:
+                sig_star = ""
+
+            f.write(f"{clean_label} & {family} & {m_mean:.3f} & {m_rank:.2f} & {mean_diff:+.4f} & [{ci_low:+.4f}, {ci_high:+.4f}] & ${p_raw_str}$ & ${p_holm_str}${sig_star} \\\\\n")
+
+        f.write("\\midrule\n")
+        nc_mean = pivot_mean["nullconsensus"].mean()
+        nc_rank = ranks_all_comp["nullconsensus"]
+        f.write(f"\\textbf{{\\textsc{{NullConsensus}}}} (Proposed) & Landmark Transfer-Cut & \\textbf{{{nc_mean:.3f}}} & \\textbf{{{nc_rank:.2f}}} & --- & --- & --- & --- \\\\\n")
+        f.write("\\bottomrule\n")
+        f.write("\\end{tabular}\n")
+        f.write("}\n")
+        f.write("\\end{table*}\n")
+
+    # 6. Statistical Numbers & LaTeX Macros (numbers.tex)
     print("Computing formal statistical numbers for numbers.tex...")
 
     # Omnibus Friedman

@@ -1,0 +1,26 @@
+% Auto-generated from results/test_benchmark.csv
+\begin{table*}[t]
+\caption{Omnibus pairwise statistical contrasts between \textsc{NullConsensus} and all 11 competitor baselines across the 27 sealed benchmark cohorts (6,880 evaluations). $\Delta\text{ARI} = \text{ARI}_{\text{NullConsensus}} - \text{ARI}_{\text{Baseline}}$. Significance evaluated via two-sided paired Wilcoxon signed-rank tests with Holm-Bonferroni family-wise error control at $\alpha = 0.05$.}\label{tab:omnibus_tests}
+\centering\small
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llcccccc}
+\toprule
+Baseline Algorithm & Algorithmic Family & Mean ARI & Mean Rank & $\Delta\text{ARI}$ & 95\% Bootstrap CI & $p_{\text{raw}}$ & $p_{\text{holm}}$ \\
+\midrule
+Ward Hier. & Hierarchical Agglomerative & 0.314 & 4.65 & -0.1280 & [-0.2303, -0.0393] & $0.0112$ & $0.1120$ \\
+Std. Consensus & Dense Consensus Ensemble & 0.298 & 5.07 & -0.1116 & [-0.2227, -0.0142] & $0.0552$ & $0.3701$ \\
+M3C & Monte Carlo Consensus & 0.293 & 5.11 & -0.1064 & [-0.2117, -0.0130] & $0.0463$ & $0.3701$ \\
+Spectral & Graph Spectral & 0.338 & 5.30 & -0.1513 & [-0.2497, -0.0647] & $0.0050$ & $0.0553$ \\
+K-Means & Classical Partitioning & 0.285 & 5.54 & -0.0988 & [-0.1967, -0.0131] & $0.0463$ & $0.3701$ \\
+Random Gate & Anchor + Random Gating & 0.263 & 6.04 & -0.0771 & [-0.1672, +0.0006] & $0.0585$ & $0.3701$ \\
+FCAG & Anchor Graph Spectral & 0.267 & 6.35 & -0.0807 & [-0.1849, +0.0077] & $0.1414$ & $0.4242$ \\
+Core-Halo & Stability-Weighted Ensemble & 0.188 & 7.06 & -0.0020 & [-0.0946, +0.0979] & $0.3483$ & $0.6967$ \\
+Sparse KM & Sparse $L_1$ Weighting & 0.232 & 7.54 & -0.0459 & [-0.1342, +0.0328] & $0.5781$ & $0.6967$ \\
+ICC-v2 (GAC) & Anchor + Marginal BC (Paper 1) & 0.132 & 9.04 & +0.0542 & [+0.0137, +0.0989] & $0.0112$ & $0.1120$ \\
+CoHiRF & Random Subspace Ensemble & 0.117 & 9.06 & +0.0689 & [+0.0103, +0.1299] & $0.0552$ & $0.3701$ \\
+\midrule
+\textbf{\textsc{NullConsensus}} (Proposed) & Landmark Transfer-Cut & \textbf{0.186} & \textbf{7.26} & --- & --- & --- & --- \\
+\bottomrule
+\end{tabular}
+}
+\end{table*}

@@ -118,6 +118,12 @@ In single-cell RNA-sequencing (scRNA-seq), reverse transcription inefficiencies 
 \end{equation}
 where $p_{0, d} = \frac{1}{N}\sum_{i=1}^N \mathbf{1}\{x_{id} = 0\}$ is the dropout fraction, and $\text{BC}_d(\mathbf{x}_d^+)$ evaluates multimodality exclusively on expressing cells $\mathbf{x}_d^+ = \{x_{id} \mid x_{id} > 0\}$. This decouples dropout-driven binary entropy from true continuous subtype expression.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig1_method_architecture.pdf}
+\caption{(a) Schematic overview of the \textsc{NullConsensus} framework: landmark selection, null-calibrated saliency screening, softmax subspace generation, and bipartite Transfer-Cut spectral embedding. (b) The zero-inflation dropout pathology in consensus clustering and its resolution via Two-Part \textsc{HurdleGate} decomposition.}\label{fig:architecture}
+\end{figure*}
+
 \input{tables/table1_manifest.tex}
 
 \section{Pre-Registered Confirmatory Protocol}\label{sec:protocol}
@@ -150,6 +156,12 @@ The primary pre-registered contrast required \textsc{NullConsensus} to achieve a
 \end{itemize}
 
 Crucially, \textsc{gac\_random\_gating} (Rank \#3, Mean ARI = 0.255) outperformed null-screened \textsc{NullConsensus} (Rank \#8, Mean ARI = 0.211). Because $p_{\text{holm}} > 0.05$ and \textsc{NullConsensus} did not achieve Rank \#1, \textbf{Hypothesis H1 is formally falsified}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_cancer_falsification.pdf}
+\caption{(a) Cohort-by-cohort clustering accuracy (ARI) across the 15 high-dimensional oncology microarrays ($D/N > 20$). (b) Paired difference distributions ($\Delta\text{ARI} = \text{ARI}_{\text{NullConsensus}} - \text{ARI}_{\text{Baseline}}$) illustrating the empirical falsification of Hypothesis H1: matched uniform random gating (\textsc{gac\_random\_gating}) matches or exceeds statistical null screening when sample sizes are small ($N < 100$).}\label{fig:cancer_falsification}
+\end{figure*}
 
 \subsection{Hypothesis H4 Outcome}
 Hypothesis H4 posited that saliency soft-sampling reduces cross-seed variance by at least 30\% ($\overline{R}_{\text{upper}} < 0.70$). The omnibus geometric mean variance ratio was $\overline{R} = \OmnibusRBar$, but the 95\% bootstrap confidence interval was $[\RBarCILow, \RBarCIHigh]$. Because the upper bound exceeds 0.70, \textbf{Hypothesis H4 is falsified}.
@@ -186,6 +198,12 @@ Across all 4 cohorts, \textsc{HurdleGate} achieves an omnibus recovery of:
 \end{equation}
 The effect size exceeds the pre-registered $+0.05$ boundary by more than $7\times$. Therefore, \textbf{Hypothesis H2 is decisively supported, unconditionally triggering Branch B (Regime Paper)}.
 
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig3_scrna_recovery.pdf}
+\caption{(a) Cohort-by-cohort Adjusted Rand Index across the 4 zero-inflated scRNA-seq benchmarks, demonstrating the catastrophic collapse of standard marginal bimodality screening (\textsc{icc\_v2}) and standard unimodal null screening (\textsc{NullConsensus}), and the remarkable recovery achieved by \textsc{HurdleGate}. (b) Omnibus scRNA-seq mean ARI recovery showing a statistically decisive gain of $\Delta\text{ARI} = +0.3832$ ($p = 3.57 \times 10^{-8}$), validating Hypothesis H2 and triggering Branch B.}\label{fig:scrna_recovery}
+\end{figure*}
+
 \input{tables/table4_general_results.tex}
 
 \section{Omnibus Benchmark \& Statistical Ranks}\label{sec:omnibus}
@@ -205,6 +223,14 @@ Evaluating \textsc{NullConsensus} against prior art across the full benchmark co
 \end{itemize}
 While \textsc{NullConsensus} successfully resolves the instability of Paper~1's GAC pipeline across general datasets, classical dense consensus (\textsc{std\_consensus}, Rank \#2) and Ward's hierarchical clustering (Rank \#1) remain exceptionally competitive general-purpose baselines.
 
+\input{tables/table5_omnibus_tests.tex}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig4_omnibus_ranks.pdf}
+\caption{Omnibus algorithm rankings across all 27 benchmark datasets (6,880 evaluations). Lower rank is better. Non-parametric Friedman test reveals significant performance divergence ($\chi^2 = 52.39, p = 2.31 \times 10^{-7}$).}\label{fig:omnibus_ranks}
+\end{figure*}
+
 \section{Taxonomy of High-Dimensional Gating Regimes}\label{sec:taxonomy}
 
 Integrating these empirical discoveries allows us to construct a rigorous practitioner's decision framework:
@@ -214,6 +240,12 @@ Integrating these empirical discoveries allows us to construct a rigorous practi
     \item \textbf{Zero-Inflated Count Manifolds (scRNA-seq, Dropouts $> 50\%$):} \textit{Marginal gating without hurdle correction is catastrophic.} Standard bimodality metrics collapse to noise ($\text{ARI} \approx 0$). Practitioners must deploy two-part hurdle gating (\textsc{HurdleGate}) to isolate positive-support expression from technical zero point masses.
     \item \textbf{General Multi-Class \& Vision ($K \ge 10$):} Graph spectral clustering and dense ensemble accumulation provide superior topological stability over greedy landmark approximations.
 \end{enumerate}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig5_regime_taxonomy.pdf}
+\caption{Empirical Decision Framework and Regime Taxonomy for High-Dimensional Clustering Practitioners. Depending on the data geometry (zero-inflated single-cell counts vs. continuous small-$N$ microarrays vs. multi-class vision), distinct clustering strategies are required to prevent metric collapse.}\label{fig:regime_taxonomy}
+\end{figure*}
 
 \section{Conclusion}\label{sec:conclusion}
 

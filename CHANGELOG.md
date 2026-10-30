@@ -20,6 +20,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0-confirmatory-complete] - 2026-10-30
+
+### Added
+- **Confirmatory Test Benchmark Execution (Phase B6):** Evaluated all 12 universal algorithms across 27 sealed public benchmark cohorts (15 high-D oncology microarrays, 4 scRNA-seq zero-inflated manifolds, 5 multi-class datasets, 3 physical controls) across 6,880 independent fits logged in `results/test_benchmark.csv`.
+- **Pre-Registration Hypothesis Auditing (`scripts/evaluate_confirmatory_hypotheses.py`):**
+  - **Hypothesis H1 (Cancer Microarrays):** Falsified ($\Delta\text{ARI} = -0.0433, p_{\text{holm}} = 0.2293$); uniform random subspace gating matches or outperforms statistical null screening when $N < 100$.
+  - **Hypothesis H2 (scRNA-seq Zero-Inflation):** Decisively supported ($\Delta\text{ARI} = +0.3832, 95\%\text{ CI: } [+0.3157, +0.4596], p = 3.57 \times 10^{-8}$); Two-Part HurdleGate resolves the dropout collapse in single-cell transcriptomics, triggering Branch B (Regime Paper).
+  - **Hypothesis H4 (Cross-Seed Variance Ratio):** Falsified ($\overline{R} = 0.6640, 95\%\text{ CI: } [0.2419, 2.0056]$).
+  - **Omnibus Friedman Rank Test:** Revealed significant global divergence across all 27 cohorts ($\chi^2 = 52.39, p = 2.31 \times 10^{-7}$).
+- **Publication Manuscript Migration (Phase B7):** Migrated manuscript to Elsevier *Pattern Recognition* (`elsarticle.cls`) under declarative title *"Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds"*.
+- **Publication Vector Figures (Phase B8):** Added 5 high-resolution 300 DPI vector figures in `paper/figures/` (`fig1_method_architecture`, `fig2_cancer_falsification`, `fig3_scrna_recovery`, `fig4_omnibus_ranks`, `fig5_regime_taxonomy`).
+- **Complete Submission Package:** Created `submission/` bundle containing `main.pdf`, `source.zip`, `COVER_LETTER.md`, `HIGHLIGHTS.md`, and `CHECKLIST.md`.
+- **Reviewer Reproducibility Guide (`REPRODUCIBILITY.md`):** Complete push-button verification guide with SHA256 cryptographic checksums for all raw results, figures, and compiled paper.
+
+---
+
 ## [0.4.0-dev-complete] - 2026-10-30
 
 ### Added
