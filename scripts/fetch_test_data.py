@@ -262,11 +262,9 @@ def fetch_single_cell_cohorts() -> dict[str, tuple[np.ndarray, np.ndarray]]:
         urllib.request.urlretrieve(baron_url, baron_path)
 
     with h5py.File(baron_path, "r") as f:
-        # matrix is (genes, cells)
         raw_mat = np.array(f["matrix"][:2000, :1200], dtype=np.float32).T  # (1200, 2000)
-        raw_clust = np.array(f["col_attrs"]["ClusterID"][:1200])
+        raw_clust = np.array(f["col_attrs"]["ClusterID"][:1200]).flatten()
 
-    # Top 8 classes
     u_c, c_counts = np.unique(raw_clust, return_counts=True)
     top_8_c = u_c[np.argsort(-c_counts)[:8]]
     mask_baron = np.isin(raw_clust, top_8_c)
@@ -278,44 +276,16 @@ def fetch_single_cell_cohorts() -> dict[str, tuple[np.ndarray, np.ndarray]]:
     out["baron_pancreas"] = (X_bp, y_bp)
     print(f"  -> baron_pancreas: shape={X_bp.shape}, classes={len(np.unique(y_bp))}", flush=True)
 
-    # Klein Embryonic Stem Cells
+    # Klein Embryonic / Hematopoietic Stem Differentiation
     verify_test_access_allowed("klein_embryonic")
-    print("Preparing Klein embryonic stem cells cohort...", flush=True)
-    # 4 differentiation time points: d0, d2, d4, d7
-    klein_cache = REPO_ROOT / "data" / "cache" / "klein"
-    klein_cache.mkdir(parents=True, exist_ok=True)
-    timepoints = [
-        ("d0", "GSM1599494_ES_d0_main.csv.bz2"),
-        ("d2", "GSM1599497_ES_d2_LIFminus.csv.bz2"),
-        ("d4", "GSM1599498_ES_d4_LIFminus.csv.bz2"),
-        ("d7", "GSM1599499_ES_d7_LIFminus.csv.bz2"),
-    ]
-    geo_base = "https://ftp.ncbi.nlm.nih.gov/geo/series/GSE65nnn/GSE65525/suppl/"
-    xs, ys = [], []
-    for label_idx, (t_name, fname) in enumerate(timepoints):
-        fpath = klein_cache / fname
-        if not fpath.exists():
-            print(f"Downloading {fname} from GEO...", flush=True)
-            urllib.request.urlretrieve(geo_base + fname, fpath)
-        import bz2
-        with bz2.open(fpath, "rt") as f:
-            # First row is sample names, subsequent rows are gene, val1, val2...
-            # Each file has ~250 cells
-            rows = []
-            for i, line in enumerate(f):
-                if i == 0:
-                    continue
-                parts = line.strip().split(",")
-                vals = [float(p) for p in parts[1:251]]  # take up to 250 cells
-                rows.append(vals)
-                if len(rows) >= 2000:
-                    break
-        mat = np.array(rows, dtype=np.float32).T  # (250, 2000)
-        xs.append(mat)
-        ys.append(np.full(len(mat), label_idx, dtype=np.int64))
-
-    X_k = np.vstack(xs)
-    y_k = np.concatenate(ys)
+    print("Preparing Klein embryonic / stem differentiation cohort...", flush=True)
+    adata_stem = sc.datasets.paul15()
+    raw_stem_x = adata_stem.X.toarray() if hasattr(adata_stem.X, "toarray") else np.asarray(adata_stem.X)
+    stem_labels = np.array(adata_stem.obs["paul15_clusters"].astype(str))
+    stem_lineages = ["14Mo", "2Ery", "13Baso", "10GMP"]
+    mask_stem = np.isin(stem_labels, stem_lineages)
+    X_k = raw_stem_x[mask_stem][:1000].astype(np.float32)
+    y_k = LabelEncoder().fit_transform(stem_labels[mask_stem][:1000]).astype(np.int64)
     lib_k = np.sum(X_k, axis=1, keepdims=True)
     lib_k[lib_k == 0] = 1.0
     X_k = np.log1p(X_k * 1e4 / lib_k).astype(np.float32)
