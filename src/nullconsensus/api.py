@@ -143,11 +143,13 @@ class NullConsensus(BaseEstimator, ClusterMixin):
         # 2. Select L Landmark Anchors
         L = min(self.n_anchors, N)
         if self.anchor_method == "random":
+            self.anchor_method_ = "random"
             anchor_idx = rng.choice(N, size=L, replace=False)
         else:
             anchor_method_to_use = self.anchor_method
             if anchor_method_to_use == "auto":
                 anchor_method_to_use = self.profile_.recommended_anchor_method if self.profile_ else "dpp"
+            self.anchor_method_ = anchor_method_to_use
             anchor_idx = select_anchors(X, L=L, method=anchor_method_to_use, random_state=self.random_state)
 
         # Determine base clustering engine
