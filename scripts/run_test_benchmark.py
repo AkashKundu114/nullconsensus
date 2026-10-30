@@ -15,6 +15,16 @@ Requires FREEZE_TAG=freeze-v1 and clean working tree via guard.py.
 
 from __future__ import annotations
 
+import os
+
+# Limit OpenBLAS/OMP thread pools per process to avoid memory exhaustion on Windows
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["VECLIB_MAXIMUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["LOKY_MAX_CPU_COUNT"] = "4"
+
 import argparse
 import csv
 import sys
@@ -94,20 +104,25 @@ def evaluate_task(task_args: tuple) -> dict:
     """Worker task evaluating a single (dataset, method, seed) combination."""
     dataset_name, method_name, seed = task_args
 
-    # Rule R2 check in subprocess
-    verify_test_access_allowed(dataset_name)
-
-    X, y, meta = load_test_dataset(dataset_name)
-    k = meta.n_clusters
-    n_samples, n_features = X.shape
-
     t0 = time.perf_counter()
     status = "SUCCESS"
     err_msg = ""
     ari = 0.0
     nmi = 0.0
+    n_samples, n_features, k = 0, 0, 2
+    domain = "Unknown"
+    is_high_d = False
 
     try:
+        # Rule R2 check in subprocess
+        verify_test_access_allowed(dataset_name)
+
+        X, y, meta = load_test_dataset(dataset_name)
+        k = meta.n_clusters
+        n_samples, n_features = X.shape
+        domain = meta.domain
+        is_high_d = meta.is_high_d
+
         # Special case: Hurdle mode evaluation on count cohorts
         if method_name == "nullconsensus_hurdle":
             from nullconsensus.api import NullConsensus
@@ -128,8 +143,8 @@ def evaluate_task(task_args: tuple) -> dict:
 
     return {
         "dataset": dataset_name,
-        "domain": meta.domain,
-        "is_high_d": meta.is_high_d,
+        "domain": domain,
+        "is_high_d": is_high_d,
         "n_samples": n_samples,
         "n_features": n_features,
         "n_clusters": k,
