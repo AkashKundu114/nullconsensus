@@ -91,10 +91,15 @@ def verify_test_access_allowed(dataset_name: str) -> bool:
             check=True,
             cwd=str(repo_root),
         )
-        if diff_res.stdout.strip():
+        # Filter out results directory and logs from porcelain check
+        uncommitted = [
+            line for line in diff_res.stdout.splitlines()
+            if line.strip() and not any(k in line for k in ["results/", "test_access.log", ".log"])
+        ]
+        if uncommitted:
             raise DataPeekingViolation(
                 f"ACCESS DENIED to TEST dataset '{dataset_name}'. "
-                f"Working tree is not clean (uncommitted changes detected)."
+                f"Working tree is not clean (uncommitted changes detected: {uncommitted})."
             )
     except DataPeekingViolation:
         raise
