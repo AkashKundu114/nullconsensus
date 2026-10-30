@@ -29,6 +29,17 @@ def get_git_executable() -> str:
     return "git"
 
 
+def get_repo_root() -> Path:
+    p = Path(__file__).resolve().parent
+    for _ in range(10):
+        if (p / ".git").exists():
+            return p
+        if p.parent == p:
+            break
+        p = p.parent
+    return Path.cwd()
+
+
 def verify_test_access_allowed(dataset_name: str) -> bool:
     """
     Verifies whether loading a TEST dataset is legally permitted under protocol R2.
@@ -51,11 +62,14 @@ def verify_test_access_allowed(dataset_name: str) -> bool:
         )
 
     git_exe = get_git_executable()
+    repo_root = get_repo_root()
 
     # Check git tag exists
     git_cmd = [git_exe, "tag", "-l", freeze_tag]
     try:
-        res = subprocess.run(git_cmd, capture_output=True, text=True, check=True)
+        res = subprocess.run(
+            git_cmd, capture_output=True, text=True, check=True, cwd=str(repo_root)
+        )
         if freeze_tag not in res.stdout.split():
             raise DataPeekingViolation(
                 f"ACCESS DENIED to TEST dataset '{dataset_name}'. "
@@ -75,6 +89,7 @@ def verify_test_access_allowed(dataset_name: str) -> bool:
             capture_output=True,
             text=True,
             check=True,
+            cwd=str(repo_root),
         )
         if diff_res.stdout.strip():
             raise DataPeekingViolation(
@@ -87,7 +102,7 @@ def verify_test_access_allowed(dataset_name: str) -> bool:
         raise DataPeekingViolation(f"Git clean status check failed: {e}")
 
     # Log access
-    log_dir = Path("results")
+    log_dir = repo_root / "results"
     log_dir.mkdir(parents=True, exist_ok=True)
     log_file = log_dir / "test_access.log"
     timestamp = datetime.now().isoformat()
