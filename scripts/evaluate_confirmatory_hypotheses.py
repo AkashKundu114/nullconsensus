@@ -209,25 +209,85 @@ def evaluate_h4(df: pd.DataFrame) -> dict:
     }
 
 
+def evaluate_h2(df: pd.DataFrame) -> dict:
+    """Evaluates Hypothesis H2: Count-Data Recovery via HurdleGate on scRNA-seq."""
+    print("\n" + "=" * 70)
+    print("HYPOTHESIS H2: COUNT-DATA RECOVERY VIA HURDLEGATE (EXPLORATORY / REGIME)")
+    print("=" * 70)
+
+    sc_df = df[df["domain"] == "Single-Cell RNA-seq"].copy()
+    datasets = sorted(sc_df["dataset"].unique())
+    print(f"Evaluated scRNA-seq Cohorts (n={len(datasets)}): {datasets}")
+
+    pivot = sc_df.groupby(["dataset", "method"])["ari"].mean().unstack()
+
+    if "nullconsensus_hurdle" not in pivot.columns or "icc_v2" not in pivot.columns:
+        print("Missing nullconsensus_hurdle or icc_v2 for H2 evaluation.")
+        return {}
+
+    hurdle_scores = pivot["nullconsensus_hurdle"].values
+    icc_scores = pivot["icc_v2"].values
+    nc_scores = pivot["nullconsensus"].values
+
+    diff_icc = hurdle_scores - icc_scores
+    diff_nc = hurdle_scores - nc_scores
+
+    print("\nCohort-by-Cohort Performance:")
+    for ds in datasets:
+        h_val = pivot.loc[ds, "nullconsensus_hurdle"]
+        icc_val = pivot.loc[ds, "icc_v2"]
+        nc_val = pivot.loc[ds, "nullconsensus"]
+        delta = h_val - icc_val
+        print(f"  {ds:18s}: HurdleGate={h_val:.4f} | ICC_v2={icc_val:.4f} | Delta={delta:+.4f}")
+
+    mean_diff_icc = float(np.mean(diff_icc))
+    ci_low_icc, ci_high_icc = bootstrap_ci(diff_icc, n_boot=10000, ci=0.95, seed=42)
+
+    # 40 seed pairs evaluation across 4 cohorts x 10 seeds
+    pair_df = sc_df.pivot(index=["dataset", "seed"], columns="method", values="ari")
+    w_stat, p_val = wilcoxon(pair_df["nullconsensus_hurdle"], pair_df["icc_v2"])
+    all_diffs = (pair_df["nullconsensus_hurdle"] - pair_df["icc_v2"]).values
+    ci_low_all, ci_high_all = bootstrap_ci(all_diffs, n_boot=10000, ci=0.95, seed=42)
+
+    print(f"\nOmnibus Delta_ARI (Hurdle vs ICC_v2)      : {mean_diff_icc:+.4f}")
+    print(f"Cohort-Level 95% Bootstrap CI             : [{ci_low_icc:+.4f}, {ci_high_icc:+.4f}]")
+    print(f"Seed-Level 95% Bootstrap CI (40 pairs)   : [{ci_low_all:+.4f}, {ci_high_all:+.4f}]")
+    print(f"Paired Wilcoxon Signed-Rank Test p-value  : {p_val:.4e}")
+    print(f"Ablation vs Unimodal NullGate (Delta_ARI) : {float(np.mean(diff_nc)):+.4f}")
+    supported = mean_diff_icc >= 0.05 and ci_low_all > 0 and p_val < 0.05
+    print(f"Pre-registered Decision (Delta >= +0.05, p < 0.05): {'SUPPORTED (BRANCH B TRIGGERED)' if supported else 'NOT SUPPORTED'}")
+
+    return {
+        "mean_diff_icc": mean_diff_icc,
+        "ci_low": ci_low_all,
+        "ci_high": ci_high_all,
+        "p_value": float(p_val),
+        "supported": bool(supported),
+    }
+
+
 def evaluate_omnibus(df: pd.DataFrame):
     """Computes non-parametric Friedman test and mean ranks across all datasets."""
     print("\n" + "=" * 70)
     print("OMNIBUS BENCHMARK ANALYSIS (FRIEDMAN & MEAN RANKS)")
     print("=" * 70)
 
-    pivot = df.groupby(["dataset", "method"])["ari"].mean().unstack()
+    # Universal methods evaluated across all 27 datasets
+    universal_methods = [m for m in df["method"].unique() if m != "nullconsensus_hurdle"]
+    pivot = df.groupby(["dataset", "method"])["ari"].mean().unstack()[universal_methods]
+
     # Rank each row: rank 1 is highest ARI
     ranks = pivot.rank(axis=1, ascending=False)
     mean_ranks = ranks.mean().sort_values()
 
-    print("Overall Algorithm Rankings (Lower is Better):")
+    print("Overall Algorithm Rankings across all 27 Datasets (Lower is Better):")
     for r, (m, score) in enumerate(mean_ranks.items(), 1):
         print(f"  #{r:2d} (Rank {score:4.2f}): {m:20s} [Mean ARI = {pivot[m].mean():.4f}]")
 
-    # Friedman test
+    # Friedman test across 12 universal algorithms
     try:
         chi2, p_val = friedmanchisquare(*[pivot[c].values for c in pivot.columns])
-        print(f"\nFriedman Test: Chi2 = {chi2:.2f}, p = {p_val:.4e}")
+        print(f"\nFriedman Test (12 methods on 27 cohorts): Chi2 = {chi2:.2f}, p = {p_val:.4e}")
     except Exception as e:
         print(f"Friedman test could not be computed: {e}")
 
@@ -246,6 +306,7 @@ def main():
     print(f"Loaded {len(df)} completed model evaluations from {csv_path}.")
 
     h1_res = evaluate_h1(df)
+    h2_res = evaluate_h2(df)
     h4_res = evaluate_h4(df)
     evaluate_omnibus(df)
 
