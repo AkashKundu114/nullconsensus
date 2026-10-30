@@ -1,0 +1,219 @@
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
+
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+
+% Single Source of Truth Numbers
+\input{numbers.tex}
+
+\raggedbottom
+
+\begin{document}
+
+\title[Empirical Boundaries of Feature-Gated Consensus Clustering]{Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds}
+
+\author*[1]{\fnm{Akash} \sur{Kundu}}\email{akash.kundu@technoindiaeducation.com}
+
+\affil*[1]{\orgdiv{Department of Computer Science and Engineering}, \orgname{Techno India University}, \orgaddress{\street{EM-4, Sector V, Salt Lake}, \city{Kolkata}, \postcode{700091}, \state{West Bengal}, \country{India}}}
+
+\abstract{
+\textbf{Purpose:} High-dimensional unsupervised clustering ($D \gg N$) is fundamentally challenged by the curse of dimensionality, non-informative distractor features, and technical artifacts such as dropout zeros. While heuristic feature gating and consensus ensembles are widely employed, their rigorous statistical necessity, empirical boundaries, and failure modes remain poorly characterized.
+
+\textbf{Methods:} Following an unalterable pre-registered confirmatory protocol (tag \texttt{freeze-v1}, Rule R2), we evaluate Permutation-Null Calibrated Consensus Clustering (\textsc{NullConsensus}) and Two-Part Hurdle Gating (\textsc{HurdleGate}) against 11 established and contemporary baselines across \TotalTestDatasets{} fresh benchmark cohorts spanning 6,880 independent model fits. The evaluation encompasses 15 high-dimensional oncology microarrays ($D/N > 20$), 4 zero-inflated single-cell RNA-seq count cohorts, 5 multi-class benchmarks, and 3 physical controls.
+
+\textbf{Results:} We report three decisive findings: (1) On continuous oncology microarrays, the primary confirmatory hypothesis that permutation-null gating universally surpasses matched uniform random subspaces is falsified ($\Delta\text{ARI} = -0.0433$, $p = 0.2293$). Uniform random gating achieved Rank \#3 (Mean ARI = \GrandMeanGacRandomGating) while null screening achieved Rank \#8 (0.2113), indicating that unimodal reference nulls behave over-conservatively on small sample sizes ($N < 100$). (2) Across the full 27-dataset omnibus benchmark, \textsc{NullConsensus} demonstrates a statistically significant improvement over Paper~1's GAC pipeline (\textsc{icc\_v2}) with $\Delta\text{ARI} = \DeltaAllIccMean$ (95\% CI: $[\DeltaAllIccCILow, \DeltaAllIccCIHigh]$, $p = \PAllIcc$), and over CoHiRF ($\Delta\text{ARI} = \DeltaAllCohirfMean$, $p = \PAllCohirf$). (3) On zero-inflated scRNA-seq manifolds, conventional bimodality screening collapses to near-zero ($\text{ARI} \approx 0.04$) due to dropout point masses. \textsc{HurdleGate} isolates Bernoulli dropout dispersion from continuous support multimodality, driving an extraordinary performance recovery ($\Delta\text{ARI} = \DeltaScIccMean$, 95\% CI: $[\DeltaScIccSeedCILow, \DeltaScIccSeedCIHigh]$, $p = \PScIccSeed$), validating Hypothesis H2.
+
+\textbf{Conclusion:} Feature gating provides no universal advantage over uniform random subspaces in continuous Gaussian regimes, but is essential for isolating biological manifold structure in zero-inflated count geometries. We synthesize these empirical boundaries into a formal regime taxonomy for high-dimensional clustering.
+}
+
+\keywords{Consensus Clustering, Feature Gating, High-Dimensional Data, Permutation Null, Zero-Inflation, Single-Cell RNA-seq, Confirmatory Benchmark}
+
+\maketitle
+
+\section{Introduction}\label{sec:intro}
+
+Unsupervised cluster analysis on high-dimensional biological and physical manifolds where the feature dimension $D$ substantially exceeds the sample size $N$ ($D \gg N$) is central to modern computational biology, functional genomics, and image analysis~\cite{monti2003consensus,desouto2008clustering}. In oncology microarrays and single-cell transcriptomics, $D$ routinely ranges from $10^3$ to $10^5$, while sample cohorts frequently contain fewer than $100$ patient specimens~\cite{desouto2008clustering,zheng2017massively}. Under these conditions, the concentration of distances and the presence of thousands of isotropic distractor features degrade the metric space of classical partitioning solvers such as $K$-Means and Ward's hierarchical agglomerative clustering~\cite{witten2010framework,belucci2025cohirf}.
+
+To mitigate distractor degradation, two primary paradigms dominate the literature:
+\begin{enumerate}
+    \item \textbf{Random Subspace Consensus Ensembles:} Generating $M$ perturbed partitions over randomly sampled feature subsets and accumulating co-association evidence into a consensus matrix $\mathbf{S} \in [0, 1]^{N \times N}$~\cite{monti2003consensus,fred2005combining,belucci2025cohirf}.
+    \item \textbf{Marginal Feature Gating:} Pre-filtering features using unsupervised distributional statistics, such as Sarle's Bimodality Coefficient (BC), to select a candidate pool $\mathcal{F}_{\text{active}} \subset \{1, \dots, D\}$ prior to consensus assembly~\cite{li2019stability,kundu2026geometry}.
+\end{enumerate}
+
+Despite the widespread adoption of feature gating, its fundamental empirical boundaries remain largely unexplored. In particular, existing literature rarely answers two critical questions:
+\begin{itemize}
+    \item \textit{Does unsupervised feature screening provide a statistically significant advantage over matched uniform random subspace selection, or is the observed gain an artifact of ensemble averaging?}
+    \item \textit{How do technical artifacts, specifically extreme dropout zeros in single-cell transcriptomics, interact with marginal multimodality screening?}
+\end{itemize}
+
+In this work, we conduct a pre-registered confirmatory benchmark across \TotalTestDatasets{} sealed datasets spanning \TotalEvaluations{} independent fits. We introduce \textsc{NullConsensus}, an anchor consensus architecture calibrated against finite-sample unimodal permutation nulls (\textsc{NullGate}), and \textsc{HurdleGate}, a two-part decomposition separating Bernoulli dropout point masses from continuous positive-support multimodality.
+
+Our empirical findings falsify the hypothesis that null-calibrated gating universally outperforms random subspaces on continuous microarray data ($p_{\text{holm}} = 0.1437$), while decisively confirming its indispensable role on zero-inflated single-cell manifolds ($\Delta\text{ARI} = \DeltaScIccMean$, $p = \PScIccSeed$).
+
+\section{Theoretical Formulations \& Algorithms}\label{sec:methods}
+
+\subsection{Bipartite Landmark Anchor Consensus}
+Classical consensus clustering constructs an $N \times N$ dense co-association matrix requiring $\mathcal{O}(N^2)$ memory and $\mathcal{O}(N^3)$ spectral decomposition time~\cite{monti2003consensus,fred2005combining}. To scale to large single-cell cohorts ($N > 1{,}000$), we utilize a bipartite landmark graph~\cite{nie2024fast,kundu2026geometry}.
+
+Let $\mathbf{X} \in \mathbb{R}^{N \times D}$ denote the centered data matrix. We select $L \ll N$ landmark anchor points $\mathcal{A} \subset \{1, \dots, N\}$ (with default $L = 40$). Across $M = 25$ base clusterings generated on subspace projections, we construct a rectangular co-association matrix $\mathbf{B} \in [0, 1]^{N \times L}$:
+\begin{equation}
+    B_{il} = \frac{1}{M}\sum_{m=1}^M \mathbf{1}\left\{\pi_m(i) = \pi_m(l)\right\},
+\end{equation}
+where $\pi_m(i) \in \{1, \dots, K\}$ denotes the cluster assignment of sample $i$ in partition $m$. 
+
+The bipartite graph Laplacian is solved via the Transfer-Cut formulation~\cite{nie2024fast}:
+\begin{equation}
+    \mathbf{W}_{\text{anchor}} = \mathbf{B}_{\text{norm}}^T \mathbf{B}_{\text{norm}} \in \mathbb{R}^{L \times L},
+\end{equation}
+where $\mathbf{B}_{\text{norm}} = \mathbf{D}_r^{-1} \mathbf{B}$ is row-stochastic. The spectral embedding $\mathbf{U} \in \mathbb{R}^{N \times K}$ is obtained in linear $\mathcal{O}(N L K)$ time via the generalized eigenvectors of the compact $L \times L$ anchor kernel:
+\begin{equation}
+    \mathbf{U} = \mathbf{B}_{\text{norm}} \mathbf{D}_c^{-1/2} \mathbf{V}_K \mathbf{\Sigma}_K^{-1/2},
+\end{equation}
+where $\mathbf{V}_K$ and $\mathbf{\Sigma}_K$ are the top eigenvectors and eigenvalues of $\mathbf{D}_c^{-1/2} \mathbf{W}_{\text{anchor}} \mathbf{D}_c^{-1/2}$, completely bypassing $\mathcal{O}(N^2)$ storage.
+
+\subsection{Permutation-Null Calibrated Gating (NullGate)}
+Standard feature gating filters features via Sarle's Bimodality Coefficient:
+\begin{equation}
+    \text{BC}_d = \frac{\gamma_d^2 + 1}{\kappa_d + 3},
+\end{equation}
+where $\gamma_d$ is sample skewness and $\kappa_d$ is excess kurtosis. However, in finite samples, sample moments exhibit high stochastic variance.
+
+\textsc{NullGate} evaluates empirical $\text{BC}_d$ against a finite-sample unimodal reference distribution:
+\begin{equation}
+    z_d = \frac{\text{BC}_d - \mu_{\text{null}}(N)}{\sigma_{\text{null}}(N)},
+\end{equation}
+where $\mu_{\text{null}}(N)$ and $\sigma_{\text{null}}(N)$ are computed via Monte Carlo draws of size $N$ from $\mathcal{N}(0, 1)$. Features are sampled with softmax temperature $T$:
+\begin{equation}
+    p_d = \frac{\exp(z_d^+ / T)}{\sum_{j \in \mathcal{F}_{\text{pool}}} \exp(z_j^+ / T)}, \quad z_d^+ = \max(0, z_d).
+\end{equation}
+
+\subsection{Two-Part Hurdle Gating (HurdleGate)}
+In single-cell RNA-sequencing (scRNA-seq), reverse transcription inefficiencies create technical dropouts, yielding point masses at zero for $60\%\text{--}90\%$ of entries. This point mass artificially inflates sample skewness and kurtosis, driving $\text{BC} \to 1.0$ even for purely uninformative noise genes.
+
+\textsc{HurdleGate} resolves this pathology via a two-part decomposition:
+\begin{equation}
+    s_d = \alpha \cdot \text{Entropy}(p_{0, d}) + (1 - \alpha) \cdot \text{BC}_d(\mathbf{x}_d^+),
+\end{equation}
+where $p_{0, d} = \frac{1}{N}\sum_{i=1}^N \mathbf{1}\{x_{id} = 0\}$ is the dropout fraction, and $\text{BC}_d(\mathbf{x}_d^+)$ evaluates multimodality exclusively on expressing cells $\mathbf{x}_d^+ = \{x_{id} \mid x_{id} > 0\}$. This decouples dropout-driven binary entropy from true continuous subtype expression.
+
+\input{tables/table1_manifest.tex}
+
+\section{Pre-Registered Confirmatory Protocol}\label{sec:protocol}
+
+To enforce research integrity and eliminate publication bias, the entire test evaluation was pre-registered in \texttt{PREREGISTRATION.md} (version 2.0.0, commit tag \texttt{prereg-v2}) and cryptographically sealed under Rule R2 prior to data unsealing:
+\begin{enumerate}
+    \item \textbf{Sealed TEST Partition:} \TotalTestDatasets{} fresh benchmark datasets (Table~\ref{tab:manifest}) with zero overlap with development or Paper~1 datasets.
+    \item \textbf{Access Guard:} Access to raw test matrices was programmatically blocked by \texttt{guard.py}, raising a fatal \texttt{DataPeekingViolation} unless the git tree was clean and tagged at \texttt{freeze-v1}.
+    \item \textbf{Frozen Hyperparameters:} All baseline implementations and hyperparameters were frozen (Table~\ref{tab:manifest}).
+    \item \textbf{Pre-Registered Decision Tree:}
+    \begin{itemize}
+        \item \textit{Branch A (Method Paper):} Triggered if H1 is supported (paired Wilcoxon Holm $p < 0.05$ and Rank \#1 on $D/N > 20$).
+        \item \textit{Branch B (Regime Paper):} Triggered if H1 fails globally, but H2 (HurdleGate recovery) is supported with statistical significance ($\Delta\text{ARI} \ge +0.05, p < 0.05$).
+        \item \textit{Branch C (Diagnostic Paper):} Fallback if neither H1 nor H2 yields a significant advantage.
+    \end{itemize}
+\end{enumerate}
+
+\input{tables/table2_cancer_results.tex}
+
+\section{Empirical Falsification: Continuous Cancer Microarrays}\label{sec:cancer_falsification}
+
+Table~\ref{tab:cancer_results} presents the results of 5,400 independent model fits across the 15 high-dimensional oncology microarrays ($D/N > 20$).
+
+\subsection{Hypothesis H1 Outcome}
+The primary pre-registered contrast required \textsc{NullConsensus} to achieve a statistically significant improvement over Paper~1's GAC pipeline (\textsc{icc\_v2}), \textsc{CoHiRF}, and the negative control \textsc{gac\_random\_gating}:
+\begin{itemize}
+    \item \textbf{vs. \textsc{icc\_v2}:} $\Delta\text{ARI} = \DeltaCancerIccMean$ (95\% CI: $[\DeltaCancerIccCILow, \DeltaCancerIccCIHigh]$ strictly $> 0$), Cohen's $d = +0.56$, $p_{\text{raw}} = \PCancerIccRaw$, but adjusted $p_{\text{holm}} = \PCancerIccHolm$ (not significant).
+    \item \textbf{vs. \textsc{CoHiRF}:} $\Delta\text{ARI} = \DeltaCancerCohirfMean$ (95\% CI: $[\DeltaCancerCohirfCILow, \DeltaCancerCohirfCIHigh]$), Cohen's $d = +0.60$, $p_{\text{raw}} = \PCancerCohirfRaw$, $p_{\text{holm}} = \PCancerCohirfHolm$ (not significant).
+    \item \textbf{vs. \textsc{gac\_random\_gating}:} $\Delta\text{ARI} = \DeltaCancerRandomMean$ (95\% CI: $[\DeltaCancerRandomCILow, \DeltaCancerRandomCIHigh]$), $p_{\text{holm}} = \PCancerRandomHolm$.
+\end{itemize}
+
+Crucially, \textsc{gac\_random\_gating} (Rank \#3, Mean ARI = 0.255) outperformed null-screened \textsc{NullConsensus} (Rank \#8, Mean ARI = 0.211). Because $p_{\text{holm}} > 0.05$ and \textsc{NullConsensus} did not achieve Rank \#1, \textbf{Hypothesis H1 is formally falsified}.
+
+\subsection{Hypothesis H4 Outcome}
+Hypothesis H4 posited that saliency soft-sampling reduces cross-seed variance by at least 30\% ($\overline{R}_{\text{upper}} < 0.70$). The omnibus geometric mean variance ratio was $\overline{R} = \OmnibusRBar$, but the 95\% bootstrap confidence interval was $[\RBarCILow, \RBarCIHigh]$. Because the upper bound exceeds 0.70, \textbf{Hypothesis H4 is falsified}.
+
+\subsection{Mechanistic Explanation of Falsification}
+Why did uniform random subspace gating match or exceed statistical null screening on continuous microarrays? 
+In small-sample cohorts ($N < 100$), biological driver genes often display subtle, multi-gene shift patterns rather than pronounced unimodal departures. When evaluated against a finite-sample permutation null ($B = 100$), these true drivers fall below the conservative statistical threshold ($z_d < 1.0$), causing \textsc{NullGate} to exclude weakly expressed driver signals. In contrast, uniform random gating samples broadly across the entire transcriptome, retaining diffuse manifold signals that dense consensus averaging successfully aggregates.
+
+\input{tables/table3_scrna_results.tex}
+
+\section{The Zero-Inflation Discovery: HurdleGate Recovery}\label{sec:scrna_recovery}
+
+While feature gating failed to provide a unique advantage on continuous microarrays, single-cell RNA-sequencing matrices revealed the exact opposite phenomenon.
+
+Table~\ref{tab:scrna_results} summarizes the 520 model evaluations across the 4 zero-inflated scRNA-seq cohorts ($N=976\text{--}1{,}147, D=2{,}000\text{--}13{,}714$).
+
+\subsection{The Dropout Collapse of Standard Gating}
+On \texttt{zheng\_b\_cells} ($N=976, D=13{,}714, K=3$), ambient K-Means and Ward achieve near-perfect separation ($\text{ARI} = 0.989$ and $0.993$). However, when feature screening is applied via marginal bimodality (\textsc{icc\_v2}) or standard unimodal null testing (\textsc{NullConsensus}), performance catastrophically collapses to $\text{ARI} = 0.041$ and $0.040$. On \texttt{zheng\_t\_cells}, performance plunges below zero ($\text{ARI} = -0.027$ and $-0.040$).
+
+This confirms our theoretical prediction: technical dropouts create artificial zero-inflation spikes that mimic extreme bimodality in non-informative background genes, causing standard feature screeners to select completely uninformative noise.
+
+\subsection{HurdleGate Confirmation (Hypothesis H2)}
+By decoupling Bernoulli dropout entropy from the positive continuous support, \textsc{HurdleGate} restores manifold clustering:
+\begin{itemize}
+    \item On \texttt{zheng\_b\_cells}: $\text{ARI}$ recovers from $0.041$ to $\mathbf{0.788}$ ($\Delta\text{ARI} = \mathbf{+0.7471}$).
+    \item On \texttt{zheng\_t\_cells}: $\text{ARI}$ recovers from $-0.027$ to $\mathbf{0.231}$ ($\Delta\text{ARI} = \mathbf{+0.2580}$).
+    \item On \texttt{baron\_pancreas}: $\text{ARI}$ recovers from $0.016$ to $\mathbf{0.285}$ ($\Delta\text{ARI} = \mathbf{+0.2695}$).
+    \item On \texttt{klein\_embryonic}: $\text{ARI}$ recovers from $0.252$ to $\mathbf{0.511}$ ($\Delta\text{ARI} = \mathbf{+0.2584}$).
+\end{itemize}
+
+Across all 4 cohorts, \textsc{HurdleGate} achieves an omnibus recovery of:
+\begin{equation}
+    \Delta\text{ARI} = \mathbf{\DeltaScIccMean}, \quad 95\% \text{ CI: } [\DeltaScIccSeedCILow, \DeltaScIccSeedCIHigh], \quad p = \mathbf{\PScIccSeed}.
+\end{equation}
+The effect size exceeds the pre-registered $+0.05$ boundary by more than $7\times$. Therefore, \textbf{Hypothesis H2 is decisively supported, unconditionally triggering Branch B (Regime Paper)}.
+
+\input{tables/table4_general_results.tex}
+
+\section{Omnibus Benchmark \& Statistical Ranks}\label{sec:omnibus}
+
+Table~\ref{tab:general_results} presents the results for the remaining 8 general multi-class and physical control datasets.
+
+Across all 27 TEST datasets and 12 universal algorithms, the non-parametric Friedman rank test reveals highly significant global performance differences:
+\begin{equation}
+    \chi^2 = \mathbf{\FriedmanChiSquare}, \quad p = \mathbf{\FriedmanPValue}.
+\end{equation}
+
+\subsection{Pairwise Contrasts Across 27 Datasets}
+Evaluating \textsc{NullConsensus} against prior art across the full benchmark confirms its robustness:
+\begin{itemize}
+    \item \textbf{vs. \textsc{icc\_v2} (Paper~1):} $\Delta\text{ARI} = \mathbf{\DeltaAllIccMean}$ (95\% CI: $[\DeltaAllIccCILow, \DeltaAllIccCIHigh]$), $p = \mathbf{\PAllIcc}$ (statistically significant).
+    \item \textbf{vs. \textsc{CoHiRF}:} $\Delta\text{ARI} = \mathbf{\DeltaAllCohirfMean}$ (95\% CI: $[\DeltaAllCohirfCILow, \DeltaAllCohirfCIHigh]$), $p = \mathbf{\PAllCohirf}$.
+\end{itemize}
+While \textsc{NullConsensus} successfully resolves the instability of Paper~1's GAC pipeline across general datasets, classical dense consensus (\textsc{std\_consensus}, Rank \#2) and Ward's hierarchical clustering (Rank \#1) remain exceptionally competitive general-purpose baselines.
+
+\section{Taxonomy of High-Dimensional Gating Regimes}\label{sec:taxonomy}
+
+Integrating these empirical discoveries allows us to construct a rigorous practitioner's decision framework:
+
+\begin{enumerate}
+    \item \textbf{Continuous Microarrays ($N < 100, D > 1{,}000$, Gaussian-like):} \textit{Avoid marginal statistical gating.} Uniform random subspace sampling or full-feature graph spectral clustering should be preferred, as permutation null filters act over-conservatively on subtle multi-gene driver shifts.
+    \item \textbf{Zero-Inflated Count Manifolds (scRNA-seq, Dropouts $> 50\%$):} \textit{Marginal gating without hurdle correction is catastrophic.} Standard bimodality metrics collapse to noise ($\text{ARI} \approx 0$). Practitioners must deploy two-part hurdle gating (\textsc{HurdleGate}) to isolate positive-support expression from technical zero point masses.
+    \item \textbf{General Multi-Class \& Vision ($K \ge 10$):} Graph spectral clustering and dense ensemble accumulation provide superior topological stability over greedy landmark approximations.
+\end{enumerate}
+
+\section{Conclusion}\label{sec:conclusion}
+
+Through an unalterable pre-registered confirmatory benchmark spanning 6,880 evaluations across 27 sealed datasets, this study establishes the empirical boundaries of feature-gated consensus clustering. We falsify the assumption that unsupervised null gating provides a universal advantage over uniform random subspaces in continuous high-dimensional regimes, while uncovering and solving the technical dropout collapse in single-cell transcriptomics via \textsc{HurdleGate}. All raw benchmarks, reproducible scripts, and cryptographic hashes are permanently archived in the project repository.
+
+\backmatter
+
+\bmhead{Data and Code Availability}
+All 27 standardized benchmark datasets, download scripts, and SHA256 checksums are documented in \texttt{data/test\_manifest.json}. Source code and reproduction pipelines are available under the MIT License at \url{https://github.com/nullconsensus/nullconsensus}.
+
+\bibliography{references}
+
+\end{document}

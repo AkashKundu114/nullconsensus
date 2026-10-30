@@ -40,3 +40,9 @@ results/checkpoints/
 *.log
 *.tar.gz
 *.zip
+
+# LaTeX build artifacts
+*.aux
+*.out
+*.synctex.gz
+*.xdv
