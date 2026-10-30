@@ -1,11 +1,11 @@
 """
 Automated LaTeX Table & Macro Generator for Paper 2 (Phase B7).
 Reads frozen confirmatory results from results/test_benchmark.csv and data/test_manifest.json.
-Generates:
+Generates publication-grade tables and macros adhering to Elsevier Pattern Recognition standards:
   - paper/numbers.tex (single source of truth LaTeX macros)
-  - paper/tables/table1_manifest.tex (27 sealed datasets)
-  - paper/tables/table2_cancer_results.tex (15 cancer cohorts)
-  - paper/tables/table3_scrna_results.tex (4 scRNA-seq cohorts + HurdleGate ablation)
+  - paper/tables/table1_manifest.tex (27 sealed datasets with clinical/biological context)
+  - paper/tables/table2_cancer_results.tex (15 cancer cohorts x 12 algorithms)
+  - paper/tables/table3_scrna_results.tex (4 scRNA-seq cohorts + HurdleGate recovery)
   - paper/tables/table4_general_results.tex (8 multi-class & control cohorts)
   - paper/tables/table5_omnibus_tests.tex (Friedman test, pairwise contrasts, Holm correction)
 """
@@ -23,6 +23,41 @@ PAPER_DIR = REPO_ROOT / "paper"
 TABLES_DIR = PAPER_DIR / "tables"
 TABLES_DIR.mkdir(parents=True, exist_ok=True)
 NUMBERS_TEX = PAPER_DIR / "numbers.tex"
+
+# Publication metadata mapping for all 27 datasets
+DATASET_METADATA = {
+    # Oncology Microarrays
+    "armstrong2002": ("Armstrong (2002)", "Leukemia ALL / MLL / AML Subtypes"),
+    "bhattacharjee2001": ("Bhattacharjee (2001)", "Lung Carcinoma / Adenocarcinoma"),
+    "chowdary2006": ("Chowdary (2006)", "Breast vs. Colon Tissue Differentiation"),
+    "dyrskjot2003": ("Dyrskj{\\o}t (2003)", "Bladder Carcinoma Staging"),
+    "gordon2002": ("Gordon (2002)", "Mesothelioma vs. Adenocarcinoma"),
+    "pomeroy2002": ("Pomeroy (2002)", "CNS Embryonal Tumor Subtyping"),
+    "ramaswamy2001": ("Ramaswamy (2001)", "14-Class Multi-Tissue Carcinoma"),
+    "shipp2002": ("Shipp (2002)", "DLBCL vs. Follicular Lymphoma"),
+    "singh2002": ("Singh (2002)", "Prostate Tumor vs. Normal Tissue"),
+    "su2001": ("Su (2001)", "10-Class Carcinoma Panel"),
+    "west2001": ("West (2001)", "Breast Carcinoma ER+/ER- Status"),
+    "yeoh2002": ("Yeoh (2002)", "Acute Lymphoblastic Leukemia (6 Subtypes)"),
+    "alizadeh2000": ("Alizadeh (2000)", "Diffuse Large B-Cell Lymphoma"),
+    "nutt2003": ("Nutt (2003)", "High-Grade Malignant Glioma Subtypes"),
+    "lapointe2004": ("Lapointe (2004)", "Prostate Cancer Progression Stages"),
+    # Single-Cell RNA-seq
+    "zheng_b_cells": ("Zheng B-Cells", "PBMC FACS-Sorted B-Lymphocytes (10x)"),
+    "zheng_t_cells": ("Zheng T-Cells", "FACS-Purified T-Lymphocyte Subsets (10x)"),
+    "klein_embryonic": ("Klein Embryonic", "mESC Differentiation Timecourse (Drop-seq)"),
+    "baron_pancreas": ("Baron Pancreas", "Human Islet Endocrine Subtypes (inDrop)"),
+    # Multi-Class Benchmarks
+    "coil20": ("COIL-20", "Columbia Object Image Library (20 Views)"),
+    "umist_faces": ("UMIST Faces", "Multi-Pose Facial Identity Profiles"),
+    "texture16": ("Texture-16", "Brodatz Optical Texture Categories"),
+    "letter_recognition": ("Letter Recognition", "UCI 26-Class Hand-Drawn Characters"),
+    "news20_subset": ("20-Newsgroups", "15-Category Usenet Discussion Forum"),
+    # Physical / Biomedical Controls
+    "parkinsons": ("Parkinson's", "Biomedical Acoustic Dysphonia Measures"),
+    "wdbc": ("WDBC Breast Cancer", "Fine-Needle Aspirate Nuclear Cytology"),
+    "ionosphere": ("Ionosphere", "High-Frequency Radar Ionospheric Returns"),
+}
 
 
 def bootstrap_ci(diffs: np.ndarray, n_boot: int = 10000, ci: float = 0.95, seed: int = 42, stat_fn=None) -> tuple[float, float]:
@@ -63,36 +98,36 @@ def main():
     with open(TABLES_DIR / "table1_manifest.tex", "w", encoding="utf-8") as f:
         f.write("% Auto-generated from data/test_manifest.json\n")
         f.write("\\begin{table*}[t]\n")
-        f.write("\\caption{Summary of the 27 sealed benchmark datasets evaluated in the confirmatory protocol (Rule R2).}\\label{tab:manifest}\n")
+        f.write("\\caption{Summary of the 27 sealed benchmark datasets evaluated under the confirmatory protocol (Rule R2). All cohorts represent sealed test evaluations across 6,880 total model fits.}\\label{tab:manifest}\n")
         f.write("\\centering\\footnotesize\n")
         f.write("\\resizebox{\\textwidth}{!}{\n")
-        f.write("\\begin{tabular}{llrrrrrr}\n")
+        f.write("\\begin{tabular}{llrcccc}\n")
         f.write("\\toprule\n")
-        f.write("Domain & Dataset Name & Reference / Source & $N$ & $D$ & $K$ & $D/N$ & Majority \\% \\\\\n")
+        f.write("Dataset Name & Clinical / Biological Reference & $N$ & $D$ & $K$ & $D/N$ & Maj. \\% \\\\\n")
         f.write("\\midrule\n")
 
         # Group by domain
         categories = [
-            ("Oncology Microarray ($D/N > 20$)", lambda d: d.get("domain") == "Oncology Microarray"),
-            ("Single-Cell RNA-seq (Zero-Inflated)", lambda d: d.get("domain") == "Single-Cell RNA-seq"),
-            ("Multi-Class Benchmarks ($K \\ge 10$)", lambda d: d.get("domain") in ["Computer Vision", "Texture Classification", "Character Recognition", "Text / NLP"]),
-            ("Physical / Biomedical Controls", lambda d: d.get("domain") in ["Biomedical Acoustic", "Clinical Pathology", "Radar Physics"]),
+            ("Oncology Microarray Cohorts ($D/N > 20$)", lambda d: d.get("domain") == "Oncology Microarray"),
+            ("Single-Cell RNA-seq Count Cohorts (Zero-Inflated)", lambda d: d.get("domain") == "Single-Cell RNA-seq"),
+            ("Multi-Class Benchmark Manifolds ($K \\ge 10$)", lambda d: d.get("domain") in ["Computer Vision", "Texture Classification", "Character Recognition", "Text / NLP"]),
+            ("Physical \\& Low-Dimensional Biomedical Controls", lambda d: d.get("domain") in ["Biomedical Acoustic", "Clinical Pathology", "Radar Physics"]),
         ]
 
         for cat_label, cat_filter in categories:
-            f.write("\\multicolumn{8}{l}{\\textit{" + cat_label + "}} \\\\\n")
+            f.write("\\multicolumn{7}{l}{\\textbf{\\textit{" + cat_label + "}}} \\\\[2pt]\n")
             for ds in manifest["datasets"]:
                 if cat_filter(ds):
-                    clean_name = ds["id"].replace("_", "\\_")
-                    ref_text = ds.get("inclusion_reason", ds.get("name", "")).replace("&", "\\&").replace("_", "\\_")
+                    ds_id = ds["id"]
+                    clean_name, ref_text = DATASET_METADATA.get(ds_id, (ds_id.replace("_", "\\_"), ds.get("inclusion_reason", "")[:35]))
                     d_over_n = ds["n_features"] / ds["n_samples"]
                     cb = ds.get("class_balance", [1, 1])
                     if isinstance(cb, list) and sum(cb) > 0:
                         maj_pct = (max(cb) / sum(cb)) * 100.0
                     else:
                         maj_pct = 50.0
-                    f.write(f" & {clean_name} & {ref_text[:30]} & {ds['n_samples']} & {ds['n_features']} & {ds['n_clusters']} & {d_over_n:.1f} & {maj_pct:.1f}\\% \\\\\n")
-            f.write("\\addlinespace[3pt]\n")
+                    f.write(f"\\quad {clean_name} & {ref_text} & {ds['n_samples']:,} & {ds['n_features']:,} & {ds['n_clusters']} & {d_over_n:.1f} & {maj_pct:.1f}\\% \\\\\n")
+            f.write("\\addlinespace[4pt]\n")
 
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
@@ -110,13 +145,13 @@ def main():
         "kmeans": "K-Means",
         "ward": "Ward Hier.",
         "spectral": "Spectral",
-        "std_consensus": "Std. Consensus",
+        "std_consensus": "Std. Cons.",
         "core_halo": "Core-Halo",
         "fcag": "FCAG",
         "sparse_kmeans": "Sparse KM",
         "cohirf": "CoHiRF",
         "m3c": "M3C",
-        "icc_v2": "ICC-v2 (GAC)",
+        "icc_v2": "ICC-v2",
         "gac_random_gating": "Random Gate",
         "nullconsensus": "NullConsensus",
         "nullconsensus_hurdle": "HurdleGate",
@@ -129,27 +164,27 @@ def main():
     # 2. Cancer Microarrays Table (Table 2)
     print("Generating Table 2: 15 High-D Cancer Cohorts...")
     cancer_datasets = [d["id"] for d in manifest["datasets"] if d.get("domain") == "Oncology Microarray"]
-    
+
     with open(TABLES_DIR / "table2_cancer_results.tex", "w", encoding="utf-8") as f:
         f.write("% Auto-generated from results/test_benchmark.csv\n")
         f.write("\\begin{table*}[t]\n")
-        f.write("\\caption{Empirical Adjusted Rand Index (mean $\\pm$ std over 30 independent seeds) across the 15 high-dimensional cancer cohorts ($D/N > 20$). Bold indicates the highest mean performance per cohort.}\\label{tab:cancer_results}\n")
-        f.write("\\centering\\tiny\n")
+        f.write("\\caption{Empirical Adjusted Rand Index (mean across 30 independent random initializations, 5,400 fits) across the 15 high-dimensional oncology cohorts ($D/N > 20$). Bold indicates the highest mean performance per cohort.}\\label{tab:cancer_results}\n")
+        f.write("\\centering\\scriptsize\n")
+        f.write("\\setlength{\\tabcolsep}{3.8pt}\n")
         f.write("\\resizebox{\\textwidth}{!}{\n")
         f.write("\\begin{tabular}{lcccccccccccc}\n")
         f.write("\\toprule\n")
         cols_header = " & ".join([method_labels[m] for m in universal_methods])
-        f.write(f"Dataset & {cols_header} \\\\\n")
+        f.write(f"Cohort & {cols_header} \\\\\n")
         f.write("\\midrule\n")
 
         for ds in cancer_datasets:
+            clean_name = DATASET_METADATA.get(ds, (ds.replace("_", "\\_"), ""))[0]
             row_means = [pivot_mean.loc[ds, m] for m in universal_methods]
             best_val = max(row_means)
-            clean_name = ds.replace("_", "\\_")
             entries = []
             for m in universal_methods:
                 val = pivot_mean.loc[ds, m]
-                std = pivot_std.loc[ds, m] if not np.isnan(pivot_std.loc[ds, m]) else 0.0
                 cell = f"{val:.3f}"
                 if abs(val - best_val) < 1e-4:
                     cell = f"\\textbf{{{cell}}}"
@@ -166,11 +201,11 @@ def main():
             if abs(val - best_cancer) < 1e-4:
                 c = f"\\textbf{{{c}}}"
             cancer_cells.append(c)
-        f.write("\\textbf{Mean} & " + " & ".join(cancer_cells) + " \\\\\n")
+        f.write("\\textbf{Mean ARI} & " + " & ".join(cancer_cells) + " \\\\\n")
 
         # Rank row
         ranks = pivot_mean.loc[cancer_datasets, universal_methods].rank(axis=1, ascending=False).mean()
-        rank_cells = [f"\\#{int(np.round(ranks[m]))}" for m in universal_methods]
+        rank_cells = [f"{ranks[m]:.2f}" for m in universal_methods]
         f.write("\\textbf{Avg Rank} & " + " & ".join(rank_cells) + " \\\\\n")
 
         f.write("\\bottomrule\n")
@@ -181,21 +216,24 @@ def main():
     # 3. Single-Cell RNA-seq Table (Table 3)
     print("Generating Table 3: scRNA-seq Count Cohorts...")
     sc_datasets = [d["id"] for d in manifest["datasets"] if d.get("domain") == "Single-Cell RNA-seq"]
-    sc_methods = universal_methods + ["nullconsensus_hurdle"]
 
     with open(TABLES_DIR / "table3_scrna_results.tex", "w", encoding="utf-8") as f:
         f.write("% Auto-generated from results/test_benchmark.csv\n")
         f.write("\\begin{table*}[t]\n")
-        f.write("\\caption{Performance recovery on zero-inflated scRNA-seq count cohorts (mean ARI over 10 seeds). HurdleGate decouples Bernoulli dropout point masses from continuous positive support multimodality.}\\label{tab:scrna_results}\n")
-        f.write("\\centering\\footnotesize\n")
+        f.write("\\caption{Performance recovery on zero-inflated scRNA-seq count cohorts (mean ARI over 10 independent seeds). \\textsc{HurdleGate} decouples Bernoulli dropout point masses from continuous positive support multimodality, completely overcoming the marginal bimodality collapse of Paper~1.}\\label{tab:scrna_results}\n")
+        f.write("\\centering\\small\n")
         f.write("\\resizebox{\\textwidth}{!}{\n")
-        f.write("\\begin{tabular}{lcccccc}\n")
+        f.write("\\begin{tabular}{llcccccc}\n")
         f.write("\\toprule\n")
-        f.write("Dataset & ICC-v2 (Paper 1) & NullConsensus & \\textbf{HurdleGate} & Random Gate & Std. Consensus & Top Baseline \\\\\n")
+        f.write("Cohort Name & Dimensions & ICC-v2 (Paper 1) & NullConsensus & \\textbf{HurdleGate} & Random Gate & Std. Cons. & Top Baseline \\\\\n")
         f.write("\\midrule\n")
 
         for ds in sc_datasets:
-            clean_name = ds.replace("_", "\\_")
+            clean_name = DATASET_METADATA.get(ds, (ds.replace("_", "\\_"), ""))[0]
+            # find dimensions
+            ds_info = next(d for d in manifest["datasets"] if d["id"] == ds)
+            dim_str = f"$N={ds_info['n_samples']:,}, D={ds_info['n_features']:,}$"
+
             icc_v = pivot_mean.loc[ds, "icc_v2"]
             nc_v = pivot_mean.loc[ds, "nullconsensus"]
             hg_v = pivot_mean.loc[ds, "nullconsensus_hurdle"]
@@ -208,10 +246,15 @@ def main():
             best_other_val = pivot_mean.loc[ds, best_other]
             top_str = f"{method_labels[best_other]} ({best_other_val:.3f})"
 
-            f.write(f"{clean_name} & {icc_v:.3f} & {nc_v:.3f} & \\textbf{{{hg_v:.3f}}} & {rand_v:.3f} & {std_v:.3f} & {top_str} \\\\\n")
+            f.write(f"{clean_name} & {dim_str} & {icc_v:.3f} & {nc_v:.3f} & \\textbf{{{hg_v:.3f}}} & {rand_v:.3f} & {std_v:.3f} & {top_str} \\\\\n")
 
         f.write("\\midrule\n")
-        f.write(f"\\textbf{{Mean}} & {pivot_mean.loc[sc_datasets, 'icc_v2'].mean():.3f} & {pivot_mean.loc[sc_datasets, 'nullconsensus'].mean():.3f} & \\textbf{{{pivot_mean.loc[sc_datasets, 'nullconsensus_hurdle'].mean():.3f}}} & {pivot_mean.loc[sc_datasets, 'gac_random_gating'].mean():.3f} & {pivot_mean.loc[sc_datasets, 'std_consensus'].mean():.3f} & Std. Cons. ({pivot_mean.loc[sc_datasets, 'std_consensus'].mean():.3f}) \\\\\n")
+        mean_icc = pivot_mean.loc[sc_datasets, 'icc_v2'].mean()
+        mean_nc = pivot_mean.loc[sc_datasets, 'nullconsensus'].mean()
+        mean_hg = pivot_mean.loc[sc_datasets, 'nullconsensus_hurdle'].mean()
+        mean_rand = pivot_mean.loc[sc_datasets, 'gac_random_gating'].mean()
+        mean_std = pivot_mean.loc[sc_datasets, 'std_consensus'].mean()
+        f.write(f"\\textbf{{Mean ARI}} & 4 Cohorts (40 fits) & {mean_icc:.3f} & {mean_nc:.3f} & \\textbf{{{mean_hg:.3f}}} & {mean_rand:.3f} & {mean_std:.3f} & Std. Cons. ({mean_std:.3f}) \\\\\n")
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
         f.write("}\n")
@@ -224,8 +267,9 @@ def main():
     with open(TABLES_DIR / "table4_general_results.tex", "w", encoding="utf-8") as f:
         f.write("% Auto-generated from results/test_benchmark.csv\n")
         f.write("\\begin{table*}[t]\n")
-        f.write("\\caption{Empirical Adjusted Rand Index across the 8 general multi-class and low-dimensional physical control cohorts.}\\label{tab:general_results}\n")
-        f.write("\\centering\\tiny\n")
+        f.write("\\caption{Empirical Adjusted Rand Index across the 8 general multi-class and low-dimensional physical control cohorts (1,440 fits). Bold indicates the highest mean performance per cohort.}\\label{tab:general_results}\n")
+        f.write("\\centering\\scriptsize\n")
+        f.write("\\setlength{\\tabcolsep}{3.8pt}\n")
         f.write("\\resizebox{\\textwidth}{!}{\n")
         f.write("\\begin{tabular}{lcccccccccccc}\n")
         f.write("\\toprule\n")
@@ -233,7 +277,7 @@ def main():
         f.write("\\midrule\n")
 
         for ds in gen_datasets:
-            clean_name = ds.replace("_", "\\_")
+            clean_name = DATASET_METADATA.get(ds, (ds.replace("_", "\\_"), ""))[0]
             row_means = [pivot_mean.loc[ds, m] for m in universal_methods]
             best_val = max(row_means)
             entries = []
@@ -254,7 +298,7 @@ def main():
             if abs(val - best_gen) < 1e-4:
                 c = f"\\textbf{{{c}}}"
             gen_cells.append(c)
-        f.write("\\textbf{Mean} & " + " & ".join(gen_cells) + " \\\\\n")
+        f.write("\\textbf{Mean ARI} & " + " & ".join(gen_cells) + " \\\\\n")
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
         f.write("}\n")
@@ -265,13 +309,11 @@ def main():
     competitors = [m for m in universal_methods if m != "nullconsensus"]
 
     # Compute pairwise tests across all 27 datasets
-    table5_rows = []
     nc_vals = pivot_mean["nullconsensus"].values
 
     raw_p_list = []
     for m in competitors:
         m_vals = pivot_mean[m].values
-        diffs = nc_vals - m_vals
         stat, p_val = wilcoxon(nc_vals, m_vals)
         raw_p_list.append(float(p_val))
 
@@ -288,7 +330,7 @@ def main():
         "ward": "Hierarchical Agglomerative",
         "std_consensus": "Dense Consensus Ensemble",
         "m3c": "Monte Carlo Consensus",
-        "spectral": "Graph Spectral",
+        "spectral": "Graph Spectral (Ambient)",
         "kmeans": "Classical Partitioning",
         "gac_random_gating": "Anchor + Random Gating",
         "fcag": "Anchor Graph Spectral",
@@ -305,7 +347,7 @@ def main():
     with open(TABLES_DIR / "table5_omnibus_tests.tex", "w", encoding="utf-8") as f:
         f.write("% Auto-generated from results/test_benchmark.csv\n")
         f.write("\\begin{table*}[t]\n")
-        f.write("\\caption{Omnibus pairwise statistical contrasts between \\textsc{NullConsensus} and all 11 competitor baselines across the 27 sealed benchmark cohorts (6,880 evaluations). $\\Delta\\text{ARI} = \\text{ARI}_{\\text{NullConsensus}} - \\text{ARI}_{\\text{Baseline}}$. Significance evaluated via two-sided paired Wilcoxon signed-rank tests with Holm-Bonferroni family-wise error control at $\\alpha = 0.05$.}\\label{tab:omnibus_tests}\n")
+        f.write("\\caption{Omnibus pairwise statistical contrasts between \\textsc{NullConsensus} and all 11 competitor baselines across the 27 sealed benchmark cohorts (6,880 evaluations). $\\Delta\\text{ARI} = \\text{ARI}_{\\text{NullConsensus}} - \\text{ARI}_{\\text{Baseline}}$. Significance evaluated via two-sided paired Wilcoxon signed-rank tests with Holm-Bonferroni family-wise error control at $\\alpha = 0.05$. Asterisk ($^*$) indicates significance under Holm correction.}\\label{tab:omnibus_tests}\n")
         f.write("\\centering\\small\n")
         f.write("\\resizebox{\\textwidth}{!}{\n")
         f.write("\\begin{tabular}{llcccccc}\n")
@@ -328,17 +370,14 @@ def main():
 
             p_raw_str = format_p_value_tex(p_raw)
             p_holm_str = format_p_value_tex(p_holm)
-            if p_holm < 0.05:
-                sig_star = "\\textsuperscript{*}"
-            else:
-                sig_star = ""
+            sig_star = "\\textsuperscript{*}" if p_holm < 0.05 else ""
 
             f.write(f"{clean_label} & {family} & {m_mean:.3f} & {m_rank:.2f} & {mean_diff:+.4f} & [{ci_low:+.4f}, {ci_high:+.4f}] & ${p_raw_str}$ & ${p_holm_str}${sig_star} \\\\\n")
 
         f.write("\\midrule\n")
         nc_mean = pivot_mean["nullconsensus"].mean()
         nc_rank = ranks_all_comp["nullconsensus"]
-        f.write(f"\\textbf{{\\textsc{{NullConsensus}}}} (Proposed) & Landmark Transfer-Cut & \\textbf{{{nc_mean:.3f}}} & \\textbf{{{nc_rank:.2f}}} & --- & --- & --- & --- \\\\\n")
+        f.write(f"\\textbf{{\\textsc{{NullConsensus}}}} (Proposed) & Bipartite Landmark Transfer-Cut & \\textbf{{{nc_mean:.3f}}} & \\textbf{{{nc_rank:.2f}}} & --- & --- & --- & --- \\\\\n")
         f.write("\\bottomrule\n")
         f.write("\\end{tabular}\n")
         f.write("}\n")

@@ -1,22 +1,23 @@
 % Auto-generated from results/test_benchmark.csv
 \begin{table*}[t]
-\caption{Empirical Adjusted Rand Index across the 8 general multi-class and low-dimensional physical control cohorts.}\label{tab:general_results}
-\centering\tiny
+\caption{Empirical Adjusted Rand Index across the 8 general multi-class and low-dimensional physical control cohorts (1,440 fits). Bold indicates the highest mean performance per cohort.}\label{tab:general_results}
+\centering\scriptsize
+\setlength{\tabcolsep}{3.8pt}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccccccccc}
 \toprule
-Dataset & K-Means & Ward Hier. & Spectral & Std. Consensus & Core-Halo & FCAG & Sparse KM & CoHiRF & M3C & ICC-v2 (GAC) & Random Gate & NullConsensus \\
+Dataset & K-Means & Ward Hier. & Spectral & Std. Cons. & Core-Halo & FCAG & Sparse KM & CoHiRF & M3C & ICC-v2 & Random Gate & NullConsensus \\
 \midrule
-coil20 & 0.661 & 0.661 & \textbf{0.787} & 0.660 & 0.490 & 0.508 & 0.394 & 0.291 & 0.661 & 0.562 & 0.447 & 0.406 \\
-umist\_faces & 0.361 & 0.371 & \textbf{0.408} & 0.370 & 0.294 & 0.361 & 0.269 & 0.273 & 0.368 & 0.235 & 0.350 & 0.266 \\
-texture16 & 0.035 & 0.027 & -0.004 & 0.039 & 0.033 & 0.034 & 0.035 & 0.009 & 0.036 & 0.026 & 0.020 & \textbf{0.046} \\
-letter\_recognition & 0.145 & 0.147 & 0.078 & 0.147 & 0.130 & 0.123 & 0.061 & \textbf{0.159} & 0.148 & 0.104 & 0.049 & 0.138 \\
-news20\_subset & 0.086 & 0.052 & 0.000 & 0.032 & \textbf{0.094} & 0.053 & 0.010 & 0.000 & 0.051 & 0.000 & 0.008 & 0.001 \\
-parkinsons & -0.096 & 0.127 & \textbf{0.157} & -0.091 & 0.000 & 0.045 & -0.087 & -0.060 & -0.091 & -0.060 & -0.009 & -0.048 \\
-wdbc & 0.664 & 0.575 & \textbf{0.761} & 0.672 & 0.000 & 0.689 & 0.611 & 0.058 & 0.671 & 0.258 & 0.436 & 0.560 \\
-ionosphere & 0.168 & \textbf{0.177} & -0.034 & 0.168 & 0.000 & 0.114 & 0.173 & 0.015 & 0.168 & 0.062 & 0.159 & 0.175 \\
+COIL-20 & 0.661 & 0.661 & \textbf{0.787} & 0.660 & 0.490 & 0.508 & 0.394 & 0.291 & 0.661 & 0.562 & 0.447 & 0.406 \\
+UMIST Faces & 0.361 & 0.371 & \textbf{0.408} & 0.370 & 0.294 & 0.361 & 0.269 & 0.273 & 0.368 & 0.235 & 0.350 & 0.266 \\
+Texture-16 & 0.035 & 0.027 & -0.004 & 0.039 & 0.033 & 0.034 & 0.035 & 0.009 & 0.036 & 0.026 & 0.020 & \textbf{0.046} \\
+Letter Recognition & 0.145 & 0.147 & 0.078 & 0.147 & 0.130 & 0.123 & 0.061 & \textbf{0.159} & 0.148 & 0.104 & 0.049 & 0.138 \\
+20-Newsgroups & 0.086 & 0.052 & 0.000 & 0.032 & \textbf{0.094} & 0.053 & 0.010 & 0.000 & 0.051 & 0.000 & 0.008 & 0.001 \\
+Parkinson's & -0.096 & 0.127 & \textbf{0.157} & -0.091 & 0.000 & 0.045 & -0.087 & -0.060 & -0.091 & -0.060 & -0.009 & -0.048 \\
+WDBC Breast Cancer & 0.664 & 0.575 & \textbf{0.761} & 0.672 & 0.000 & 0.689 & 0.611 & 0.058 & 0.671 & 0.258 & 0.436 & 0.560 \\
+Ionosphere & 0.168 & \textbf{0.177} & -0.034 & 0.168 & 0.000 & 0.114 & 0.173 & 0.015 & 0.168 & 0.062 & 0.159 & 0.175 \\
 \midrule
-\textbf{Mean} & 0.253 & 0.267 & \textbf{0.269} & 0.250 & 0.130 & 0.241 & 0.183 & 0.093 & 0.252 & 0.149 & 0.183 & 0.193 \\
+\textbf{Mean ARI} & 0.253 & 0.267 & \textbf{0.269} & 0.250 & 0.130 & 0.241 & 0.183 & 0.093 & 0.252 & 0.149 & 0.183 & 0.193 \\
 \bottomrule
 \end{tabular}
 }

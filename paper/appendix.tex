@@ -4,10 +4,18 @@
 
 In this appendix, we establish the full non-asymptotic proofs for the spectral convergence of Bipartite Landmark Transfer-Cut consensus (Theorem~\ref{thm:spectral_bound}) and the exponential noise suppression of Two-Part \textsc{HurdleGate} (Theorem~\ref{thm:hurdle_bound}).
 
-\subsection{Proof of Theorem 1: Transfer-Cut Spectral Convergence Bound}
+\subsection{Proof of Theorem 1: Transfer-Cut Spectral Convergence}
 
 \begin{lemma}[Bipartite Generalized Singular Value Equivalence]\label{lem:bipartite_svd}
-Let $\mathbf{B} \in [0, 1]^{N \times L}$ be the rectangular co-association matrix between $N$ data instances and $L$ landmark anchors. Let $\mathbf{D}_r = \mathrm{diag}(\mathbf{B} \mathbf{1}_L) \in \mathbb{R}^{N \times N}$ and $\mathbf{D}_c = \mathrm{diag}(\mathbf{B}^T \mathbf{1}_N) \in \mathbb{R}^{L \times L}$. The non-zero eigenvalues of the $N \times N$ normalized affinity matrix $\mathbf{S}_{\mathrm{bipartite}} = \mathbf{D}_r^{-1/2} \mathbf{B} \mathbf{D}_c^{-1} \mathbf{B}^T \mathbf{D}_r^{-1/2}$ and the $L \times L$ anchor kernel matrix $\mathbf{K}_{\mathrm{anchor}} = \mathbf{D}_c^{-1/2} \mathbf{B}^T \mathbf{D}_r^{-1} \mathbf{B} \mathbf{D}_c^{-1/2}$ are identical.
+Let $\mathbf{B} \in [0, 1]^{N \times L}$ be the rectangular co-association matrix between $N$ instances and $L$ landmark anchors. Let $\mathbf{D}_r = \mathrm{diag}(\mathbf{B} \mathbf{1}_L)$ and $\mathbf{D}_c = \mathrm{diag}(\mathbf{B}^T \mathbf{1}_N)$. The non-zero eigenvalues of normalized affinity matrix:
+\begin{equation}
+    \mathbf{S}_{\mathrm{bipartite}} = \mathbf{D}_r^{-1/2} \mathbf{B} \mathbf{D}_c^{-1} \mathbf{B}^T \mathbf{D}_r^{-1/2}
+\end{equation}
+and anchor kernel matrix:
+\begin{equation}
+    \mathbf{K}_{\mathrm{anchor}} = \mathbf{D}_c^{-1/2} \mathbf{B}^T \mathbf{D}_r^{-1} \mathbf{B} \mathbf{D}_c^{-1/2}
+\end{equation}
+are identical.
 \end{lemma}
 
 \begin{proof}
@@ -36,12 +44,16 @@ Let $\mathbf{L}^* = \mathbf{I}_N - \mathbf{S}^*$ and $\mathbf{L} = \mathbf{I}_N 
 \end{equation}
 where $\gamma_K$ is the spectral eigengap. Since $\|\mathbf{A}\|_F \le \sqrt{K} \|\mathbf{A}\|_2$ for rank-$K$ projections, combining this with Lemma~\ref{lem:bernstein} yields:
 \begin{equation}
-    \min_{\mathbf{O} \in \mathcal{O}(K)} \|\mathbf{U}\mathbf{O} - \mathbf{U}^*\|_F \le \sqrt{2} \|\sin\Theta(\mathbf{U}, \mathbf{U}^*)\|_F \le \frac{2\sqrt{2}}{\gamma_K} \left( \sqrt{\frac{K \ln(2D/\delta)}{L}} + \frac{C_0}{\sqrt{N}} \right),
+\begin{aligned}
+    \min_{\mathbf{O} \in \mathcal{O}(K)} \|\mathbf{U}\mathbf{O} - \mathbf{U}^*\|_F 
+    &\le \sqrt{2} \|\sin\Theta(\mathbf{U}, \mathbf{U}^*)\|_F \\
+    &\le \frac{2\sqrt{2}}{\gamma_K} \left( \sqrt{\frac{K \ln(2D/\delta)}{L}} + \frac{C_0}{\sqrt{N}} \right),
+\end{aligned}
 \end{equation}
 which completes the proof of Theorem~\ref{thm:spectral_bound}.
 \end{proof}
 
-\subsection{Proof of Theorem 2: Exponential Noise Suppression of HurdleGate}
+\subsection{Proof of Theorem 2: HurdleGate Noise Suppression}
 
 \begin{lemma}[Point-Mass Moment Divergence under Dropout Zero-Inflation]\label{lem:moment_divergence}
 Let $X \sim (1 - p_0)\delta_0 + p_0 \mathcal{N}(\mu, \sigma^2)$ be a zero-inflated continuous feature with dropout rate $p_0 \in (0, 1)$. Then the sample skewness $\gamma$ and excess kurtosis $\kappa$ satisfy:
@@ -70,7 +82,7 @@ For the noise gene $d_0$, the dropout rate is close to 1 ($p_{0, d_0} \ge 0.95$)
 \begin{equation}
     \mathbb{E}[s_{\mathrm{Hurdle}}(d_0)] \le 0.5 \epsilon + 0.5(5/9) \approx 0.28.
 \end{equation}
-For the true marker gene $d_1$, the binary presence across distinct cell types exhibits balanced distribution ($p_{0, d_1} \approx 0.5$), yielding maximal entropy $H(p_{0, d_1}) \approx \ln 2 \approx 0.693$. On its positive support, the bimodal separation $\delta_{\min} > 0$ yields $\mathbb{E}[\text{BC}(\mathbf{x}_{d_1}^+)] \ge 5/9 + \Delta$. Thus:
+For the true marker gene $d_1$, binary cell-type presence is balanced ($p_{0, d_1} \approx 0.5$), yielding maximal entropy $H(p_{0, d_1}) \approx \ln 2 \approx 0.693$. On positive support, bimodal separation $\delta_{\min} > 0$ yields $\mathbb{E}[\text{BC}(\mathbf{x}_{d_1}^+)] \ge 5/9 + \Delta$. Thus:
 \begin{equation}
     \mathbb{E}[s_{\mathrm{Hurdle}}(d_1)] - \mathbb{E}[s_{\mathrm{Hurdle}}(d_0)] \ge \frac{1}{2}\left(\ln 2 - \epsilon\right) + \frac{1}{2}\Delta > 0.
 \end{equation}

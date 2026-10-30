@@ -1,18 +1,18 @@
 % Auto-generated from results/test_benchmark.csv
 \begin{table*}[t]
-\caption{Performance recovery on zero-inflated scRNA-seq count cohorts (mean ARI over 10 seeds). HurdleGate decouples Bernoulli dropout point masses from continuous positive support multimodality.}\label{tab:scrna_results}
-\centering\footnotesize
+\caption{Performance recovery on zero-inflated scRNA-seq count cohorts (mean ARI over 10 independent seeds). \textsc{HurdleGate} decouples Bernoulli dropout point masses from continuous positive support multimodality, completely overcoming the marginal bimodality collapse of Paper~1.}\label{tab:scrna_results}
+\centering\small
 \resizebox{\textwidth}{!}{
-\begin{tabular}{lcccccc}
+\begin{tabular}{llcccccc}
 \toprule
-Dataset & ICC-v2 (Paper 1) & NullConsensus & \textbf{HurdleGate} & Random Gate & Std. Consensus & Top Baseline \\
+Cohort Name & Dimensions & ICC-v2 (Paper 1) & NullConsensus & \textbf{HurdleGate} & Random Gate & Std. Cons. & Top Baseline \\
 \midrule
-zheng\_b\_cells & 0.041 & 0.040 & \textbf{0.788} & 0.959 & 0.992 & Ward Hier. (0.993) \\
-zheng\_t\_cells & -0.027 & -0.040 & \textbf{0.231} & 0.341 & 0.768 & Std. Consensus (0.768) \\
-klein\_embryonic & 0.252 & 0.274 & \textbf{0.511} & 0.462 & 0.497 & Sparse KM (0.524) \\
-baron\_pancreas & 0.016 & 0.042 & \textbf{0.285} & 0.066 & 0.245 & K-Means (0.318) \\
+Zheng B-Cells & $N=976, D=13,714$ & 0.041 & 0.040 & \textbf{0.788} & 0.959 & 0.992 & Ward Hier. (0.993) \\
+Zheng T-Cells & $N=1,000, D=13,714$ & -0.027 & -0.040 & \textbf{0.231} & 0.341 & 0.768 & Std. Cons. (0.768) \\
+Klein Embryonic & $N=1,000, D=3,451$ & 0.252 & 0.274 & \textbf{0.511} & 0.462 & 0.497 & Sparse KM (0.524) \\
+Baron Pancreas & $N=1,147, D=2,000$ & 0.016 & 0.042 & \textbf{0.285} & 0.066 & 0.245 & K-Means (0.318) \\
 \midrule
-\textbf{Mean} & 0.071 & 0.079 & \textbf{0.454} & 0.457 & 0.626 & Std. Cons. (0.626) \\
+\textbf{Mean ARI} & 4 Cohorts (40 fits) & 0.071 & 0.079 & \textbf{0.454} & 0.457 & 0.626 & Std. Cons. (0.626) \\
 \bottomrule
 \end{tabular}
 }

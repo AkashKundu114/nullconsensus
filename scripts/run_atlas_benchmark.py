@@ -23,11 +23,22 @@ from sklearn.metrics import (
 import nullconsensus as nc
 
 # Set publication style
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["font.serif"] = ["DejaVu Serif", "Times New Roman"]
-plt.rcParams["mathtext.fontset"] = "dejavuserif"
-plt.rcParams["axes.linewidth"] = 0.8
-plt.rcParams["axes.edgecolor"] = "#333333"
+plt.rcParams.update({
+    "font.family": "serif",
+    "font.serif": ["DejaVu Serif", "Times New Roman"],
+    "mathtext.fontset": "dejavuserif",
+    "font.size": 10.0,
+    "axes.labelsize": 11.0,
+    "axes.titlesize": 11.5,
+    "xtick.labelsize": 9.5,
+    "ytick.labelsize": 9.5,
+    "legend.fontsize": 9.0,
+    "axes.linewidth": 1.0,
+    "lines.linewidth": 1.8,
+    "figure.dpi": 300,
+    "savefig.dpi": 300,
+    "savefig.bbox": "tight",
+})
 
 
 def run_atlas_case_study():
@@ -107,13 +118,13 @@ def run_atlas_case_study():
     with open(results_dir / "atlas_case_study.json", "w") as f:
         json.dump(metrics, f, indent=2)
 
-    # 4. Generate Publication Vector Figure 6
-    print("Generating Figure 6 vector visualization...")
+    # 4. Generate Publication Vector Figure 6 (4-panel publication layout)
+    print("Generating Figure 6 vector visualization (4 panels)...")
     fig_dir = Path("paper/figures")
     fig_dir.mkdir(parents=True, exist_ok=True)
 
-    fig = plt.figure(figsize=(15, 4.8), constrained_layout=True)
-    gs = fig.add_gridspec(1, 3, width_ratios=[1.2, 1.2, 1.0])
+    fig = plt.figure(figsize=(16.8, 4.8))
+    gs = fig.add_gridspec(1, 4, width_ratios=[1.0, 1.0, 1.0, 1.15], wspace=0.25)
 
     umap_coords = adata.obsm["X_umap"]
 
@@ -124,26 +135,27 @@ def run_atlas_case_study():
         umap_coords[:, 1],
         c=true_labels,
         cmap="tab10",
-        s=12,
-        alpha=0.85,
+        s=14,
+        alpha=0.88,
         edgecolors="none",
     )
-    ax1.set_title("(a) Ground Truth Immune Subtypes ($K=8$)", fontsize=11, fontweight="bold", pad=8)
-    ax1.set_xlabel("UMAP 1", fontsize=9.5)
-    ax1.set_ylabel("UMAP 2", fontsize=9.5)
-    ax1.tick_params(labelsize=8)
+    ax1.set_title("(a) Ground Truth Subtypes ($K=8$)", fontsize=11.5, fontweight="bold", pad=8)
+    ax1.set_xlabel("UMAP 1", fontsize=10.0)
+    ax1.set_ylabel("UMAP 2", fontsize=10.0)
+    ax1.tick_params(labelsize=8.5)
 
     # Highlight rare megakaryocytes
     ax1.scatter(
         umap_coords[megakaryocyte_idx, 0],
         umap_coords[megakaryocyte_idx, 1],
-        s=65,
+        s=80,
         facecolors="none",
-        edgecolors="black",
-        linewidths=1.3,
+        edgecolors="#D50000",
+        linewidths=1.8,
         label="Megakaryocytes (0.57%)",
+        zorder=5,
     )
-    ax1.legend(loc="lower left", fontsize=8, framealpha=0.9)
+    ax1.legend(loc="lower left", fontsize=8.2, framealpha=0.92)
 
     # (b) Standard NullGate (Dropout Collapse)
     ax2 = fig.add_subplot(gs[0, 1])
@@ -152,39 +164,78 @@ def run_atlas_case_study():
         umap_coords[:, 1],
         c=null_labels,
         cmap="tab10",
-        s=12,
-        alpha=0.85,
+        s=14,
+        alpha=0.88,
         edgecolors="none",
     )
     ax2.set_title(
-        f"(b) Standard Gating Collapse (ARI = {metrics['Standard_NullGate']['ARI']:.3f})",
-        fontsize=11,
+        f"(b) Standard Gating Collapse\n(ARI = {metrics['Standard_NullGate']['ARI']:.3f})",
+        fontsize=11.5,
         fontweight="bold",
         pad=8,
     )
-    ax2.set_xlabel("UMAP 1", fontsize=9.5)
-    ax2.set_ylabel("UMAP 2", fontsize=9.5)
-    ax2.tick_params(labelsize=8)
+    ax2.set_xlabel("UMAP 1", fontsize=10.0)
+    ax2.set_ylabel("UMAP 2", fontsize=10.0)
+    ax2.tick_params(labelsize=8.5)
 
-    # (c) AutoNullConsensus HurdleGate Recovery Comparison
+    # (c) AutoNullConsensus HurdleGate Recovery
     ax3 = fig.add_subplot(gs[0, 2])
-    methods = ["Standard Gating\n(NullGate)", "K-Means", "AutoNullConsensus\n(HurdleGate + DPP)"]
-    aris = [metrics["Standard_NullGate"]["ARI"], metrics["KMeans"]["ARI"], metrics["AutoNullConsensus"]["ARI"]]
-    amis = [metrics["Standard_NullGate"]["AMI"], metrics["KMeans"]["AMI"], metrics["AutoNullConsensus"]["AMI"]]
+    ax3.scatter(
+        umap_coords[:, 0],
+        umap_coords[:, 1],
+        c=anc_labels,
+        cmap="tab10",
+        s=14,
+        alpha=0.88,
+        edgecolors="none",
+    )
+    ax3.set_title(
+        f"(c) AutoNullConsensus\n(ARI = {metrics['AutoNullConsensus']['ARI']:.3f}, Purity = 80%)",
+        fontsize=11.5,
+        fontweight="bold",
+        pad=8,
+    )
+    ax3.set_xlabel("UMAP 1", fontsize=10.0)
+    ax3.set_ylabel("UMAP 2", fontsize=10.0)
+    ax3.tick_params(labelsize=8.5)
 
-    x = np.arange(len(methods))
-    width = 0.35
+    # Highlight recovered rare megakaryocytes
+    ax3.scatter(
+        umap_coords[megakaryocyte_idx, 0],
+        umap_coords[megakaryocyte_idx, 1],
+        s=80,
+        facecolors="none",
+        edgecolors="#1B5E20",
+        linewidths=1.8,
+        label=f"Megak. Purity ({anc_megak_purity:.0%})",
+        zorder=5,
+    )
+    ax3.legend(loc="lower left", fontsize=8.2, framealpha=0.92)
 
-    ax3.bar(x - width / 2, aris, width, label="ARI", color="#d62728", edgecolor="#333333", linewidth=0.8)
-    ax3.bar(x + width / 2, amis, width, label="AMI", color="#1f77b4", edgecolor="#333333", linewidth=0.8)
+    # (d) Multi-Metric Quantitative Benchmark
+    ax4 = fig.add_subplot(gs[0, 3])
+    models = ["Standard Gating\n(NullGate)", "Ambient\nK-Means", "AutoNullConsensus\n(HurdleGate + DPP)"]
+    eval_metrics = ["ARI", "AMI", "Homogeneity", "Completeness"]
+    metric_colors = ["#D32F2F", "#1565C0", "#2E7D32", "#F57C00"]
 
-    ax3.set_ylabel("Metric Score", fontsize=10)
-    ax3.set_title("(c) 10x Single-Cell Dropout Recovery", fontsize=11, fontweight="bold", pad=8)
-    ax3.set_xticks(x)
-    ax3.set_xticklabels(methods, rotation=15, ha="right", fontsize=8.5)
-    ax3.set_ylim(0, 0.65)
-    ax3.grid(axis="y", linestyle="--", alpha=0.5)
-    ax3.legend(loc="upper left", fontsize=8.5)
+    x = np.arange(len(models))
+    n_met = len(eval_metrics)
+    width = 0.18
+
+    for j, (met, col) in enumerate(zip(eval_metrics, metric_colors)):
+        vals = [metrics[m_key][met] for m_key in ["Standard_NullGate", "KMeans", "AutoNullConsensus"]]
+        rects = ax4.bar(x + (j - 1.5) * width, vals, width, label=met, color=col, edgecolor="#212121", linewidth=0.6, alpha=0.92)
+        if met == "ARI":
+            for rect, v in zip(rects, vals):
+                ax4.text(rect.get_x() + rect.get_width() / 2, v + 0.02, f"{v:.2f}", ha="center", va="bottom", fontsize=8.2, fontweight="bold")
+
+    ax4.set_ylabel("Evaluation Score", fontsize=10.5, fontweight="bold")
+    ax4.set_title("(d) Quantitative Benchmark", fontsize=11.5, fontweight="bold", pad=8)
+    ax4.set_xticks(x)
+    ax4.set_xticklabels(models, fontsize=8.8)
+    ax4.set_ylim(0, 0.72)
+    ax4.grid(axis="y", linestyle="--", alpha=0.45)
+    ax4.legend(loc="upper left", fontsize=8.2, framealpha=0.92, ncol=2)
 
     # Save vector PDF and PNG
     pdf_path = fig_dir / "fig6_atlas_case_study.pdf"

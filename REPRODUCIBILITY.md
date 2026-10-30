@@ -39,11 +39,11 @@ To protect against post-hoc p-hacking and publication bias, this study adheres s
 - All 27 confirmatory test datasets are programmatically guarded by [`src/nullconsensus/data/guard.py`](file:///d:/nullconsensus/src/nullconsensus/data/guard.py). Attempting to load test data without a clean git tree at tag `freeze-v1` raises a fatal `DataPeekingViolation`.
 
 ### Run Unit Test Battery
-Verify the 32 unit tests across baseline estimators, permutation gating, hurdle decomposition, and data access guards:
+Verify the 38 unit tests across baseline estimators, permutation gating, hurdle decomposition, AutoNullConsensus router, k-DPP anchors, and data access guards:
 ```bash
-pytest tests/
+python -m pytest tests/
 ```
-*Expected Result:* `32 passed in ~8s` (100% pass rate).
+*Expected Result:* `38 passed in ~14s` (100% pass rate).
 
 ---
 
@@ -114,7 +114,8 @@ tectonic main.tex
 | :--- | :--- | :--- |
 | `results/test_benchmark.csv` | Raw 6,880 Confirmatory Model Evaluations | `4C930C8720206E6EAA563B90B9A72219E2734AA1322983F73C1A79B267BC4D1B` |
 | `paper/numbers.tex` | Single Source of Truth LaTeX Macros | `A4E6EBC79E3B31697A76B732FDADF2580C2D29C7D46A03F452FDC5851CFE458B` |
-| `paper/main.pdf` | Final Pattern Recognition Manuscript | `41D9539BAFBEEFB2551018C3F895967A18B88605DC4B82153E6D6C8D07B688C7` |
+| `paper/main.pdf` | Final Pattern Recognition Manuscript | `F2BBD81D9CEDD7F5C18D225FC4E54EE5F600CB3B46B7916FA7F25A2EFF26B435` |
+| `submission/source.zip` | Complete Elsevier Submission Archive | `77177F5E62C581FD579F12B64F2DE1601BBC3912A23A41EFC601F6DB867B79F9` |
 | `data/test_manifest.json` | 27 Pre-Registered Benchmark Manifest | `44FDE584E85DE52E63920F99401C0AE665BF4CE1156641884DC530D911BA8D3D` |
 
 ---

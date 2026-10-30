@@ -249,9 +249,9 @@ Table~\ref{tab:cancer_results} presents the results of 5,400 independent model f
 \subsection{Hypothesis H1 Outcome}
 The primary pre-registered contrast required \textsc{NullConsensus} to achieve a statistically significant improvement over Paper~1's GAC pipeline (\textsc{icc\_v2}), \textsc{CoHiRF}, and the negative control \textsc{gac\_random\_gating}:
 \begin{itemize}
-    \item \textbf{vs. Paper~1 (\textsc{icc\_v2}):} Mean $\Delta\text{ARI} = \DeltaCancerIccMean$ (95\% CI: $[\DeltaCancerIccCILow, \DeltaCancerIccCIHigh]$), with Cohen's $d = +0.56$, unadjusted $p = \PCancerIccRaw$, and Holm $p_{\text{holm}} = \PCancerIccHolm$ (not significant).
-    \item \textbf{vs. \textsc{CoHiRF}:} Mean $\Delta\text{ARI} = \DeltaCancerCohirfMean$ (95\% CI: $[\DeltaCancerCohirfCILow, \DeltaCancerCohirfCIHigh]$), with Cohen's $d = +0.60$, unadjusted $p = \PCancerCohirfRaw$, and Holm $p_{\text{holm}} = \PCancerCohirfHolm$ (not significant).
-    \item \textbf{vs. Random Gating (\textsc{gac\_random}):} Mean $\Delta\text{ARI} = \DeltaCancerRandomMean$ (95\% CI: $[\DeltaCancerRandomCILow, \DeltaCancerRandomCIHigh]$), with Holm-adjusted $p_{\text{holm}} = \PCancerRandomHolm$.
+    \item \textbf{vs. Paper~1 (\textsc{icc\_v2}):} Mean $\Delta\text{ARI} = \DeltaCancerIccMean$, 95\% CI $[\DeltaCancerIccCILow, \allowbreak \DeltaCancerIccCIHigh]$, with Cohen's $d = +0.56$, unadjusted $p = \PCancerIccRaw$, and Holm $p_{\text{holm}} = \PCancerIccHolm$ (not significant).
+    \item \textbf{vs. \textsc{CoHiRF}:} Mean $\Delta\text{ARI} = \DeltaCancerCohirfMean$, 95\% CI $[\DeltaCancerCohirfCILow, \allowbreak \DeltaCancerCohirfCIHigh]$, with Cohen's $d = +0.60$, unadjusted $p = \PCancerCohirfRaw$, and Holm $p_{\text{holm}} = \PCancerCohirfHolm$ (not significant).
+    \item \textbf{vs. Random Gating (\textsc{gac\_random}):} Mean $\Delta\text{ARI} = \DeltaCancerRandomMean$, 95\% CI $[\DeltaCancerRandomCILow, \allowbreak \DeltaCancerRandomCIHigh]$, with Holm $p_{\text{holm}} = \PCancerRandomHolm$.
 \end{itemize}
 
 As shown in Fig.~\ref{fig:cancer_falsification}a and Fig.~\ref{fig:cancer_falsification}b, \textsc{gac\_random\_gating} (Rank \#3, Mean ARI = 0.255) outperformed null-screened \textsc{NullConsensus} (Rank \#8, Mean ARI = 0.211). Because $p_{\text{holm}} > 0.05$ and \textsc{NullConsensus} did not achieve Rank \#1, \textbf{Hypothesis H1 is formally falsified}.
@@ -300,12 +300,12 @@ To evaluate \textsc{AutoNullConsensus} on an authentic high-dimensional atlas, w
 
 As demonstrated in Fig.~\ref{fig:atlas_case_study}b, applying standard feature gating without hurdle decomposition (\textsc{NullGate}) triggers complete metric collapse ($\text{ARI} = 0.0023$, $\text{AMI} = 0.0067$, $\text{Homogeneity} = 0.0136$) because technical dropout point-masses hijack the bimodality screener. In contrast, \textsc{AutoNullConsensus} autonomously detects the zero-inflation manifold ($z = 93.8\%$), deploys Two-Part \textsc{HurdleGate} with $k$-DPP diversity anchors, and drives an extraordinary recovery to $\text{ARI} = 0.3423$ and $\text{AMI} = 0.5632$ (Fig.~\ref{fig:atlas_case_study}c).
 
-Crucially, in the discovery of rare biological cell types, standard graph spectral and $K$-Means clustering merge the ultra-rare Megakaryocyte population ($N = 15$ cells, representing only $0.57\%$ of the atlas) into broad neighboring platelet-monocyte clusters. \textsc{AutoNullConsensus} isolates Megakaryocytes with an extraordinary **$80.0\%$ cluster purity** (12 out of 15 cells assigned to a dedicated cluster), validating the ability of $k$-DPP volume-sampled anchors to preserve rare manifold branches.
+Crucially, in the discovery of rare biological cell types, ambient graph spectral and $K$-Means clustering merge the ultra-rare Megakaryocyte population ($N = 15$ cells, $0.57\%$ of the atlas) into broad neighboring platelet-monocyte clusters. \textsc{AutoNullConsensus} isolates Megakaryocytes with an extraordinary \textbf{80.0\% cluster purity} (12 of 15 cells assigned to a dedicated cluster), validating the ability of $k$-DPP volume-sampled anchors to preserve rare manifold branches.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig6_atlas_case_study.pdf}
-\caption{Real-world single-cell atlas case study on 10x Genomics PBMC transcriptomics ($N=2{,}638, D=13{,}714, K=8$, $93.8\%$ dropouts). (a) Ground-truth immune subtypes on UMAP embedding, highlighting rare Megakaryocytes ($0.57\%$). (b) The empirical collapse of standard feature screening (\textsc{NullGate}) to pure noise ($\text{ARI} = 0.0023$). (c) Multi-metric performance comparison demonstrating decisive recovery by \textsc{AutoNullConsensus} ($\text{ARI} = 0.3423, \text{AMI} = 0.5632$) and $80.0\%$ purity on rare sub-populations.}\label{fig:atlas_case_study}
+\caption{Real-world single-cell atlas case study on 10x Genomics PBMC transcriptomics ($N=2{,}638, D=13{,}714, K=8$, $93.8\%$ dropouts). (a) Ground-truth immune subtypes on UMAP embedding, highlighting rare Megakaryocytes ($0.57\%$). (b) The empirical collapse of standard feature screening (\textsc{NullGate}) to pure noise ($\text{ARI} = 0.0023$). (c) Autonomous recovery under \textsc{AutoNullConsensus} (Two-Part \textsc{HurdleGate} + $k$-DPP anchors) ($\text{ARI} = 0.3423, \text{AMI} = 0.5632$). (d) Quantitative multi-metric benchmark across four independent clustering metrics, demonstrating $80.0\%$ purity on rare sub-populations.}\label{fig:atlas_case_study}
 \end{figure*}
 
 \begin{figure*}[t]
@@ -328,8 +328,8 @@ Across all 27 TEST datasets and 12 universal algorithms, non-parametric Friedman
 \subsection{Pairwise Contrasts Across 27 Datasets}
 Pairwise contrasts against prior art across the 27 benchmark cohorts (Table~\ref{tab:omnibus_tests}) confirm the general competitiveness of \textsc{NullConsensus}:
 \begin{itemize}
-    \item \textbf{vs. Paper~1 (\textsc{icc\_v2}):} Mean difference $\Delta\text{ARI} = \mathbf{\DeltaAllIccMean}$ (95\% CI: $[\DeltaAllIccCILow, \DeltaAllIccCIHigh]$), reaching statistical significance ($p = \mathbf{\PAllIcc}$).
-    \item \textbf{vs. \textsc{CoHiRF}:} Mean difference $\Delta\text{ARI} = \mathbf{\DeltaAllCohirfMean}$ (95\% CI: $[\DeltaAllCohirfCILow, \DeltaAllCohirfCIHigh]$), with Wilcoxon rank test $p = \mathbf{\PAllCohirf}$.
+    \item \textbf{vs. Paper~1 (\textsc{icc\_v2}):} Mean difference $\Delta\text{ARI} = \mathbf{\DeltaAllIccMean}$, 95\% CI $[\DeltaAllIccCILow, \allowbreak \DeltaAllIccCIHigh]$, reaching statistical significance ($p = \mathbf{\PAllIcc}$).
+    \item \textbf{vs. \textsc{CoHiRF}:} Mean difference $\Delta\text{ARI} = \mathbf{\DeltaAllCohirfMean}$, 95\% CI $[\DeltaAllCohirfCILow, \allowbreak \DeltaAllCohirfCIHigh]$, with Wilcoxon rank test $p = \mathbf{\PAllCohirf}$.
 \end{itemize}
 Although \textsc{NullConsensus} resolves the instability of Paper~1's GAC pipeline, classical dense consensus (\textsc{std\_consensus}, Rank \#2) and Ward's hierarchical clustering (Rank \#1) remain exceptionally robust general-purpose baselines (Fig.~\ref{fig:omnibus_ranks}).
 
@@ -365,9 +365,11 @@ Integrating our empirical findings across the 27 cohorts allows us to formulate 
 A persistent practical barrier to ensemble clustering in bioinformatics has been memory consumption. Constructing an $N \times N$ dense co-association matrix for single-cell cohorts with $N = 50{,}000$ requires $20.0$ GB of RAM, causing memory aborts on standard desktop workstations. By formulating bipartite consensus over $L = 40$ landmark anchors, \textsc{NullConsensus} requires only $\mathcal{O}(NL)$ memory ($16.0$ MB for $N=50{,}000$). In our stress tests, single-fit execution time on $N=2{,}000, D=15{,}000$ required only $4.19$ seconds and $1.01$ GB RAM, making the pipeline easily deployable on modest hardware.
 
 \subsection{Production Software Ecosystem \& GPU Acceleration}
-To facilitate widespread adoption, \textsc{AutoNullConsensus} is implemented as a standard \texttt{scikit-learn} estimator (\texttt{BaseEstimator}, \texttt{ClusterMixin}) and provides native 1-line integration with the single-cell Python ecosystem (\texttt{Scanpy} / \texttt{AnnData}):
+To facilitate widespread adoption, \textsc{AutoNullConsensus} is implemented as a standard \texttt{scikit-learn} estimator (\texttt{BaseEstimator}, \texttt{ClusterMixin}) and provides native single-line integration with the single-cell ecosystem (\texttt{Scanpy} and \texttt{AnnData}):
+
 \begin{center}
-\small\texttt{import nullconsensus as nc; nc.tl.cluster(adata, n\_clusters=8)}
+\small\texttt{import nullconsensus as nc} \\
+\small\texttt{nc.tl.cluster(adata, n\_clusters=8)}
 \end{center}
 For ultra-scale datasets, an optional PyTorch tensor backend evaluates the Transfer-Cut eigensystem directly on CUDA GPUs. On a benchmark cohort of $N = 1{,}000{,}000$ single cells, GPU-accelerated \textsc{AutoNullConsensus} completes full consensus clustering in $2.4$ seconds on an NVIDIA workstation, bypassing the prohibitive $\mathcal{O}(N^2)$ memory wall.
 
