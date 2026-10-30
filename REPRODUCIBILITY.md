@@ -114,7 +114,7 @@ tectonic main.tex
 | :--- | :--- | :--- |
 | `results/test_benchmark.csv` | Raw 6,880 Confirmatory Model Evaluations | `4C930C8720206E6EAA563B90B9A72219E2734AA1322983F73C1A79B267BC4D1B` |
 | `paper/numbers.tex` | Single Source of Truth LaTeX Macros | `A4E6EBC79E3B31697A76B732FDADF2580C2D29C7D46A03F452FDC5851CFE458B` |
-| `paper/main.pdf` | Final Pattern Recognition Manuscript | `FB47BCB2AA99541F8662FDC6B856159B25FDD68B7A29D7A35512EAA5A37E42BD` |
+| `paper/main.pdf` | Final Pattern Recognition Manuscript | `70C615E7CC71A5B0A2D5A0B678143C64429C3389B4B3941E63DDB879E9BFEC7A` |
 | `data/test_manifest.json` | 27 Pre-Registered Benchmark Manifest | `44FDE584E85DE52E63920F99401C0AE665BF4CE1156641884DC530D911BA8D3D` |
 
 ---
