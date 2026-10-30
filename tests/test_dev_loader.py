@@ -27,13 +27,14 @@ def test_load_synthetic_dev():
     assert meta_xor.n_clusters == 2
 
 
-def test_test_data_access_blocked():
-    # An attempt to load Armstrong (which is in test_manifest.json) must trigger DataPeekingViolation
+def test_test_data_access_blocked(monkeypatch):
+    monkeypatch.delenv("FREEZE_TAG", raising=False)
+    # An attempt to load a TEST dataset without freeze authorization must trigger DataPeekingViolation
     with pytest.raises(DataPeekingViolation):
-        load_dev_dataset("armstrong")
+        load_dev_dataset("armstrong2002")
 
     with pytest.raises(DataPeekingViolation):
-        load_dev_dataset("chowdary")
+        load_dev_dataset("chowdary2006")
 
 
 def test_load_real_dev_dataset():
