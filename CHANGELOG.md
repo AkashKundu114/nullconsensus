@@ -20,6 +20,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.4.0-dev-complete] - 2026-10-30
+
+### Added
+- **Round 2 Hyperparameter Grid Runner (`scripts/run_round2_grid.py`):** Evaluated 324 configurations across $\tau \in \{0.5, 1.0, 2.0\}$, $L \in \{20, 40, 60\}$, and $\alpha \in \{0.10, 0.15, 0.20\}$; empirically validated lack of performance cliffs and confirmed canonical defaults ($\tau=1.0, L=40, \alpha=0.15$).
+- **Round 3 HurdleGate Calibration Runner (`scripts/run_round3_hurdle.py`):** Verified Hypothesis H2 on single-cell PBMC counts (`zheng68k`) and synthetic zero-inflated Poisson manifolds across varying dropout rates (50%, 70%, 85%); Hurdle mode achieved $+0.1497$ ARI advantage over `icc_v2` (beating pre-registered target $\ge +0.05$).
+- **Round 4 Scalability & Memory Stress-Test Runner (`scripts/run_round4_stress.py`):** Validated Pre-Registered Kill Criterion 2 up to $N=2{,}000, D=15{,}000$ (30 million elements); achieved single-fit execution time of 4.19s ($\ll 600$s cap) and peak memory of 1.01 GB ($\ll 12.0$ GB cap).
+- **Results Registries:** Logged all raw experimental runs in `results/round2_grid.csv`, `results/round3_hurdle.csv`, and `results/round4_stress.csv`.
+
+---
+
 ## [0.3.0-dev-round1] - 2026-10-29
 
 ### Added

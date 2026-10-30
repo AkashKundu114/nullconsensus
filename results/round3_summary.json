@@ -1,0 +1,34 @@
+{
+  "timestamp": "2026-10-30T08:44:23",
+  "total_evaluations": 80,
+  "mean_hurdle_ari": 0.2006,
+  "mean_nullgate_ari": 0.0432,
+  "mean_iccv2_ari": 0.0509,
+  "delta_vs_iccv2": 0.1497,
+  "mean_ari_matrix": {
+    "icc_v2": {
+      "synthetic_hurdle_drop_50": -0.0009716827157002051,
+      "synthetic_hurdle_drop_70": 0.0254626249022402,
+      "synthetic_hurdle_drop_85": 0.011213428897199795,
+      "zheng68k": 0.16790161033101034
+    },
+    "kmeans": {
+      "synthetic_hurdle_drop_50": 0.2767817085407851,
+      "synthetic_hurdle_drop_70": 0.14837518208247946,
+      "synthetic_hurdle_drop_85": 0.04072688088157082,
+      "zheng68k": 0.5472397756965227
+    },
+    "nullconsensus_hurdle": {
+      "synthetic_hurdle_drop_50": 0.29301384674632686,
+      "synthetic_hurdle_drop_70": 0.17222315792591741,
+      "synthetic_hurdle_drop_85": 0.04664354014598138,
+      "zheng68k": 0.2905842315830941
+    },
+    "nullconsensus_nullgate": {
+      "synthetic_hurdle_drop_50": -0.0030436561187276523,
+      "synthetic_hurdle_drop_70": 0.04269185056126195,
+      "synthetic_hurdle_drop_85": 0.01642989639657048,
+      "zheng68k": 0.11662358480372734
+    }
+  }
+}

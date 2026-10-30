@@ -1,0 +1,4 @@
+benchmark,n_samples,n_features,total_elements,runtime_sec,peak_memory_mb,peak_memory_gb,passed_time_threshold,passed_memory_threshold,status
+scale_1k_5k,1000,5000,5000000,3.196,171.83,0.168,True,True,PASS
+scale_2k_10k,2000,10000,20000000,3.09,686.96,0.671,True,True,PASS
+scale_2k_15k_prereg_cap,2000,15000,30000000,4.188,1030.43,1.006,True,True,PASS

@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-10-30T08:44:47",
+  "all_passed": true,
+  "results": [
+    {
+      "benchmark": "scale_1k_5k",
+      "n_samples": 1000,
+      "n_features": 5000,
+      "total_elements": 5000000,
+      "runtime_sec": 3.196,
+      "peak_memory_mb": 171.83,
+      "peak_memory_gb": 0.168,
+      "passed_time_threshold": true,
+      "passed_memory_threshold": true,
+      "status": "PASS"
+    },
+    {
+      "benchmark": "scale_2k_10k",
+      "n_samples": 2000,
+      "n_features": 10000,
+      "total_elements": 20000000,
+      "runtime_sec": 3.09,
+      "peak_memory_mb": 686.96,
+      "peak_memory_gb": 0.671,
+      "passed_time_threshold": true,
+      "passed_memory_threshold": true,
+      "status": "PASS"
+    },
+    {
+      "benchmark": "scale_2k_15k_prereg_cap",
+      "n_samples": 2000,
+      "n_features": 15000,
+      "total_elements": 30000000,
+      "runtime_sec": 4.188,
+      "peak_memory_mb": 1030.43,
+      "peak_memory_gb": 1.006,
+      "passed_time_threshold": true,
+      "passed_memory_threshold": true,
+      "status": "PASS"
+    }
+  ]
+}
