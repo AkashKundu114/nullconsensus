@@ -36,5 +36,6 @@ Thumbs.db
 
 # Large binaries & results
 results/checkpoints/
+*.log
 *.tar.gz
 *.zip
