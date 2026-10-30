@@ -1,50 +1,60 @@
-\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
+\documentclass[preprint,12pt]{elsarticle}
+
+\journal{Pattern Recognition}
 
 \usepackage{graphicx}
 \usepackage{multirow}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{amsthm}
 \usepackage{mathrsfs}
-\usepackage[title]{appendix}
-\usepackage{xcolor}
-\usepackage{textcomp}
-\usepackage{manyfoot}
 \usepackage{booktabs}
 \usepackage{algorithm}
-\usepackage{algorithmicx}
 \usepackage{algpseudocode}
-\usepackage{listings}
+\usepackage{url}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue}
 
 % Single Source of Truth Numbers
 \input{numbers.tex}
 
-\raggedbottom
-
 \begin{document}
 
-\title[Empirical Boundaries of Feature-Gated Consensus Clustering]{Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds}
+\begin{frontmatter}
 
-\author*[1]{\fnm{Akash} \sur{Kundu}}\email{akash.kundu@technoindiaeducation.com}
+\title{Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds}
 
-\affil*[1]{\orgdiv{Department of Computer Science and Engineering}, \orgname{Techno India University}, \orgaddress{\street{EM-4, Sector V, Salt Lake}, \city{Kolkata}, \postcode{700091}, \state{West Bengal}, \country{India}}}
+\author[inst1]{Akash Kundu\corref{cor1}}
+\ead{akash.kundu@technoindiaeducation.com}
+\cortext[cor1]{Corresponding author}
 
-\abstract{
-\textbf{Purpose:} High-dimensional unsupervised clustering ($D \gg N$) is fundamentally challenged by the curse of dimensionality, non-informative distractor features, and technical artifacts such as dropout zeros. While heuristic feature gating and consensus ensembles are widely employed, their rigorous statistical necessity, empirical boundaries, and failure modes remain poorly characterized.
+\affiliation[inst1]{organization={Department of Computer Science and Engineering, Techno India University},
+            addressline={EM-4, Sector V, Salt Lake},
+            city={Kolkata},
+            postcode={700091},
+            state={West Bengal},
+            country={India}}
 
-\textbf{Methods:} Following an unalterable pre-registered confirmatory protocol (tag \texttt{freeze-v1}, Rule R2), we evaluate Permutation-Null Calibrated Consensus Clustering (\textsc{NullConsensus}) and Two-Part Hurdle Gating (\textsc{HurdleGate}) against 11 established and contemporary baselines across \TotalTestDatasets{} fresh benchmark cohorts spanning 6,880 independent model fits. The evaluation encompasses 15 high-dimensional oncology microarrays ($D/N > 20$), 4 zero-inflated single-cell RNA-seq count cohorts, 5 multi-class benchmarks, and 3 physical controls.
+\begin{abstract}
+High-dimensional unsupervised clustering ($D \gg N$) is fundamentally challenged by the curse of dimensionality, non-informative distractor features, and technical artifacts such as dropout zeros. While heuristic feature gating and consensus ensembles are widely employed, their rigorous statistical necessity, empirical boundaries, and failure modes remain poorly characterized. Following an unalterable pre-registered confirmatory protocol (tag \texttt{freeze-v1}, Rule R2), we evaluate Permutation-Null Calibrated Consensus Clustering (\textsc{NullConsensus}) and Two-Part Hurdle Gating (\textsc{HurdleGate}) against 11 established and contemporary baselines across \TotalTestDatasets{} fresh benchmark cohorts spanning 6,880 independent model fits. The evaluation encompasses 15 high-dimensional oncology microarrays ($D/N > 20$), 4 zero-inflated single-cell RNA-seq count cohorts, 5 multi-class benchmarks, and 3 physical controls. We report three decisive findings: (1) On continuous oncology microarrays, the primary confirmatory hypothesis that permutation-null gating universally surpasses matched uniform random subspaces is falsified ($\Delta\text{ARI} = -0.0433$, $p = 0.2293$). Uniform random gating achieved Rank \#3 (Mean ARI = \GrandMeanGacRandomGating) while null screening achieved Rank \#8 (0.2113), indicating that unimodal reference nulls behave over-conservatively on small sample sizes ($N < 100$). (2) Across the full 27-dataset omnibus benchmark, \textsc{NullConsensus} demonstrates a statistically significant improvement over Paper~1's GAC pipeline (\textsc{icc\_v2}) with $\Delta\text{ARI} = \DeltaAllIccMean$ (95\% CI: $[\DeltaAllIccCILow, \DeltaAllIccCIHigh]$, $p = \PAllIcc$), and over CoHiRF ($\Delta\text{ARI} = \DeltaAllCohirfMean$, $p = \PAllCohirf$). (3) On zero-inflated scRNA-seq manifolds, conventional bimodality screening collapses to near-zero ($\text{ARI} \approx 0.04$) due to dropout point masses. \textsc{HurdleGate} isolates Bernoulli dropout dispersion from continuous support multimodality, driving an extraordinary performance recovery ($\Delta\text{ARI} = \DeltaScIccMean$, 95\% CI: $[\DeltaScIccSeedCILow, \DeltaScIccSeedCIHigh]$, $p = \PScIccSeed$), validating Hypothesis H2. Feature gating provides no universal advantage over uniform random subspaces in continuous Gaussian regimes, but is essential for isolating biological manifold structure in zero-inflated count geometries. We synthesize these empirical boundaries into a formal regime taxonomy for high-dimensional clustering.
+\end{abstract}
 
-\textbf{Results:} We report three decisive findings: (1) On continuous oncology microarrays, the primary confirmatory hypothesis that permutation-null gating universally surpasses matched uniform random subspaces is falsified ($\Delta\text{ARI} = -0.0433$, $p = 0.2293$). Uniform random gating achieved Rank \#3 (Mean ARI = \GrandMeanGacRandomGating) while null screening achieved Rank \#8 (0.2113), indicating that unimodal reference nulls behave over-conservatively on small sample sizes ($N < 100$). (2) Across the full 27-dataset omnibus benchmark, \textsc{NullConsensus} demonstrates a statistically significant improvement over Paper~1's GAC pipeline (\textsc{icc\_v2}) with $\Delta\text{ARI} = \DeltaAllIccMean$ (95\% CI: $[\DeltaAllIccCILow, \DeltaAllIccCIHigh]$, $p = \PAllIcc$), and over CoHiRF ($\Delta\text{ARI} = \DeltaAllCohirfMean$, $p = \PAllCohirf$). (3) On zero-inflated scRNA-seq manifolds, conventional bimodality screening collapses to near-zero ($\text{ARI} \approx 0.04$) due to dropout point masses. \textsc{HurdleGate} isolates Bernoulli dropout dispersion from continuous support multimodality, driving an extraordinary performance recovery ($\Delta\text{ARI} = \DeltaScIccMean$, 95\% CI: $[\DeltaScIccSeedCILow, \DeltaScIccSeedCIHigh]$, $p = \PScIccSeed$), validating Hypothesis H2.
+\begin{highlights}
+\item Pre-registered confirmatory benchmark of feature gating across 27 cohorts (6,880 fits).
+\item Falsifies the hypothesis that unimodal null screening universally beats random subspaces.
+\item Uncovers the catastrophic zero-inflation dropout collapse in consensus clustering.
+\item Two-part HurdleGate achieves decisive +0.3832 ARI recovery on zero-inflated manifolds.
+\item Establishes an empirical regime taxonomy for high-dimensional clustering practitioners.
+\end{highlights}
 
-\textbf{Conclusion:} Feature gating provides no universal advantage over uniform random subspaces in continuous Gaussian regimes, but is essential for isolating biological manifold structure in zero-inflated count geometries. We synthesize these empirical boundaries into a formal regime taxonomy for high-dimensional clustering.
-}
+\begin{keyword}
+Consensus Clustering \sep Feature Gating \sep High-Dimensional Data \sep Permutation Null \sep Zero-Inflation \sep Single-Cell RNA-seq \sep Confirmatory Benchmark
+\end{keyword}
 
-\keywords{Consensus Clustering, Feature Gating, High-Dimensional Data, Permutation Null, Zero-Inflation, Single-Cell RNA-seq, Confirmatory Benchmark}
-
-\maketitle
+\end{frontmatter}
 
 \section{Introduction}\label{sec:intro}
 
-Unsupervised cluster analysis on high-dimensional biological and physical manifolds where the feature dimension $D$ substantially exceeds the sample size $N$ ($D \gg N$) is central to modern computational biology, functional genomics, and image analysis~\cite{monti2003consensus,desouto2008clustering}. In oncology microarrays and single-cell transcriptomics, $D$ routinely ranges from $10^3$ to $10^5$, while sample cohorts frequently contain fewer than $100$ patient specimens~\cite{desouto2008clustering,zheng2017massively}. Under these conditions, the concentration of distances and the presence of thousands of isotropic distractor features degrade the metric space of classical partitioning solvers such as $K$-Means and Ward's hierarchical agglomerative clustering~\cite{witten2010framework,belucci2025cohirf}.
+Unsupervised cluster analysis on high-dimensional biological and physical manifolds where the feature dimension $D$ substantially exceeds the sample size $N$ ($D \gg N$) is central to modern computational biology, functional genomics, and pattern recognition~\cite{monti2003consensus,desouto2008clustering}. In oncology microarrays and single-cell transcriptomics, $D$ routinely ranges from $10^3$ to $10^5$, while sample cohorts frequently contain fewer than $100$ patient specimens~\cite{desouto2008clustering,zheng2017massively}. Under these conditions, the concentration of distances and the presence of thousands of isotropic distractor features degrade the metric space of classical partitioning solvers such as $K$-Means and Ward's hierarchical agglomerative clustering~\cite{witten2010framework,belucci2025cohirf}.
 
 To mitigate distractor degradation, two primary paradigms dominate the literature:
 \begin{enumerate}
@@ -209,11 +219,19 @@ Integrating these empirical discoveries allows us to construct a rigorous practi
 
 Through an unalterable pre-registered confirmatory benchmark spanning 6,880 evaluations across 27 sealed datasets, this study establishes the empirical boundaries of feature-gated consensus clustering. We falsify the assumption that unsupervised null gating provides a universal advantage over uniform random subspaces in continuous high-dimensional regimes, while uncovering and solving the technical dropout collapse in single-cell transcriptomics via \textsc{HurdleGate}. All raw benchmarks, reproducible scripts, and cryptographic hashes are permanently archived in the project repository.
 
-\backmatter
+\section*{CRediT Authorship Contribution Statement}
+\textbf{Akash Kundu:} Conceptualization, Methodology, Software, Formal analysis, Investigation, Data Curation, Writing - Original Draft, Visualization, Project administration.
 
-\bmhead{Data and Code Availability}
-All 27 standardized benchmark datasets, download scripts, and SHA256 checksums are documented in \texttt{data/test\_manifest.json}. Source code and reproduction pipelines are available under the MIT License at \url{https://github.com/nullconsensus/nullconsensus}.
+\section*{Declaration of Competing Interest}
+The author declares that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
 
+\section*{Data and Code Availability}
+All 27 standardized benchmark datasets, download scripts, and SHA256 checksums are documented in \texttt{data/test\_manifest.json}. Source code, raw evaluation CSV logs, and reproduction scripts are available under the MIT License at \url{https://github.com/nullconsensus/nullconsensus}.
+
+\section*{Acknowledgements}
+The author acknowledges the open-source scientific Python community and the creators of the Curated Microarray and scRNA-seq benchmark repositories for facilitating public access to curated high-dimensional datasets.
+
+\bibliographystyle{elsarticle-num}
 \bibliography{references}
 
 \end{document}

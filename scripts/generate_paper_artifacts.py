@@ -36,6 +36,16 @@ def bootstrap_ci(diffs: np.ndarray, n_boot: int = 10000, ci: float = 0.95, seed:
     return float(np.percentile(boots, 100.0 * alpha)), float(np.percentile(boots, 100.0 * (1.0 - alpha)))
 
 
+def format_p_value_tex(p: float) -> str:
+    if p < 0.001:
+        s = f"{p:.2e}"
+        m, exp = s.split("e")
+        exp_int = int(exp)
+        return f"{m} \\times 10^{{{exp_int}}}"
+    else:
+        return f"{p:.4f}"
+
+
 def main():
     print("=" * 70)
     print("GENERATING PUBLICATION-GRADE LATEX TABLES & MACROS (PHASE B7)")
@@ -326,7 +336,7 @@ def main():
 
         # Omnibus Friedman
         f.write(f"\\newcommand{{\\FriedmanChiSquare}}{{{chi2_val:.2f}}}\n")
-        f.write(f"\\newcommand{{\\FriedmanPValue}}{{{p_friedman:.2e}}}\n")
+        f.write(f"\\newcommand{{\\FriedmanPValue}}{{{format_p_value_tex(p_friedman)}}}\n")
 
         # Grand Means across all 27 datasets
         for m in universal_methods:
@@ -357,7 +367,7 @@ def main():
         f.write(f"\\newcommand{{\\DeltaScIccMean}}{{{float(np.mean(diff_h2_icc)):+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaScIccSeedCILow}}{{{ci_h2_seed_low:+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaScIccSeedCIHigh}}{{{ci_h2_seed_high:+.4f}}}\n")
-        f.write(f"\\newcommand{{\\PScIccSeed}}{{{p_h2_seed:.2e}}}\n")
+        f.write(f"\\newcommand{{\\PScIccSeed}}{{{format_p_value_tex(p_h2_seed)}}}\n")
         f.write(f"\\newcommand{{\\DeltaScNullgateMean}}{{{float(np.mean(diff_h2_nc)):+.4f}}}\n")
         f.write(f"\\newcommand{{\\MeanHurdleGateSc}}{{{pivot_mean.loc[sc_datasets, 'nullconsensus_hurdle'].mean():.3f}}}\n")
         f.write(f"\\newcommand{{\\MeanIccVTwoSc}}{{{pivot_mean.loc[sc_datasets, 'icc_v2'].mean():.3f}}}\n")
@@ -371,12 +381,12 @@ def main():
         f.write(f"\\newcommand{{\\DeltaAllIccMean}}{{{float(np.mean(diff_all_icc)):+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaAllIccCILow}}{{{ci_all_icc_low:+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaAllIccCIHigh}}{{{ci_all_icc_high:+.4f}}}\n")
-        f.write(f"\\newcommand{{\\PAllIcc}}{{{p_all_icc:.4e}}}\n")
+        f.write(f"\\newcommand{{\\PAllIcc}}{{{format_p_value_tex(p_all_icc)}}}\n")
 
         f.write(f"\\newcommand{{\\DeltaAllCohirfMean}}{{{float(np.mean(diff_all_cohirf)):+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaAllCohirfCILow}}{{{ci_all_cohirf_low:+.4f}}}\n")
         f.write(f"\\newcommand{{\\DeltaAllCohirfCIHigh}}{{{ci_all_cohirf_high:+.4f}}}\n")
-        f.write(f"\\newcommand{{\\PAllCohirf}}{{{p_all_cohirf:.4e}}}\n")
+        f.write(f"\\newcommand{{\\PAllCohirf}}{{{format_p_value_tex(p_all_cohirf)}}}\n")
 
     print(f"Generated {NUMBERS_TEX} and table files under {TABLES_DIR}.")
 
