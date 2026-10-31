@@ -11,7 +11,7 @@
 **Permutation-Null Calibrated Consensus Clustering for High-Dimensional Manifolds.**
 
 Official reference implementation of the manuscript:  
-**"Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds"** (*Pattern Recognition*, Elsevier, Under Review).
+**"Empirical Boundaries of Feature-Gated Consensus Clustering: Permutation-Null Calibration and Hurdle Recovery on High-Dimensional Manifolds"** (*Pattern Recognition*, Elsevier, Under Preparation).
 
 ---
 
