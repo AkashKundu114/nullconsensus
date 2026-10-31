@@ -54,7 +54,7 @@ Unsupervised cluster analysis on high-dimensional biological and physical manifo
 To mitigate distractor degradation and stabilize cluster partitions, two primary paradigms dominate contemporary literature:
 \begin{enumerate}
     \item \textbf{Random Subspace Consensus Ensembles:} Generating $M$ perturbed base clusterings over randomly projected or subsampled feature subsets and accumulating co-association evidence into a consensus matrix $\mathbf{S} \in [0, 1]^{N \times N}$~\cite{monti2003consensus,fred2005combining,fern2003random,belucci2025cohirf,xu2026dynamic}.
-    \item \textbf{Marginal Feature Gating and Screening:} Pre-filtering features using unsupervised distributional statistics, such as Sarle's Bimodality Coefficient (BC)~\cite{sarle1983sas}, to select an active candidate pool $\mathcal{F}_{\text{active}} \subset \{1, \dots, D\}$ prior to consensus assembly~\cite{kundu2026geometry,li2019clustering,patcog2026consensus}.
+    \item \textbf{Marginal Feature Gating and Screening:} Pre-filtering features using unsupervised distributional statistics, such as Sarle's Bimodality Coefficient (BC)~\cite{sarle1983sas}, to select an active candidate pool $\mathcal{F}_{\text{active}} \subset \{1, \dots, D\}$ prior to consensus assembly~\cite{li2019clustering,patcog2026consensus}.
 \end{enumerate}
 
 Despite the widespread adoption of feature gating, its fundamental empirical boundaries and interaction with data geometry remain poorly understood. In particular, existing literature rarely addresses two central questions:
